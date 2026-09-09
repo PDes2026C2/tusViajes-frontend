@@ -44,7 +44,8 @@ export const useAuthStore = create<AuthState>()(
 
                         const user: User = {
                             id: responseDTO.id,
-                            email: responseDTO.email
+                            email: responseDTO.email,
+                            role: responseDTO.role
                         }
 
                         set({
@@ -72,7 +73,8 @@ export const useAuthStore = create<AuthState>()(
                         const responseDTO = await authDataSource.registerBuyer(registerDTO)
                         const user: User = {
                             id: responseDTO.id,
-                            email: responseDTO.email
+                            email: responseDTO.email,
+                            role: responseDTO.role
                         }
 
                         set({
@@ -101,7 +103,8 @@ export const useAuthStore = create<AuthState>()(
 
                         const user: User = {
                             id: responseDTO.id,
-                            email: responseDTO.email
+                            email: responseDTO.email,
+                            role: 'AGENCY'
                         }
 
                         set({

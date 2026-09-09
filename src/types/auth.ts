@@ -1,3 +1,5 @@
+import type { Role } from "../models/auth"
+
 export interface LoginRequestDTO {
     email:string
     password: string
@@ -25,6 +27,7 @@ export interface LoginResponseDTO {
     tokenType: string
     id: number
     email: string
+    role: Role
 }
 
 export interface AgencyRegistrationResponseDTO {

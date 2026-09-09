@@ -1,8 +1,11 @@
 import type { AgencyRegistrationRequestDTO, BuyerRegistrationRequestDTO, LoginRequestDTO } from "../types/auth"
 
+export type Role = 'ADMIN' | 'AGENCY' | 'BUYER'
+
 export interface User {
     id: number
-    email: string   
+    email: string
+    role: Role
 }
 
 export interface AuthTokens {

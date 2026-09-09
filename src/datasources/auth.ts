@@ -1,4 +1,4 @@
-import type { AgencyRegistrationRequestDTO, AgencyRegistrationResponseDTO, BuyerRegistrationRequestDTO, BuyerResponseDTO, LoginRequestDTO, LoginResponseDTO } from "../types/auth"
+import type { AgencyRegistrationRequestDTO, AgencyRegistrationResponseDTO, BuyerRegistrationRequestDTO, LoginRequestDTO, LoginResponseDTO } from "../types/auth"
 import publicClient from "./public-client"
 
 
