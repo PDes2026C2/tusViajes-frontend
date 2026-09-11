@@ -1,8 +1,7 @@
 import axios from "axios"
-
+import { useAuthStore } from "../stores/auth"
 
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
-
 
 const apiClient = axios.create({
     baseURL: API_URL,
@@ -41,7 +40,7 @@ apiClient.interceptors.response.use(
                 }
 
                 const { authDataSource } = await import('./auth')
-                const { accessToken, refreshToken: newRefreshToken } = await authDataSource.refresh(refreshToken)
+                const { token: accessToken, refreshToken: newRefreshToken } = await authDataSource.refresh(refreshToken)
 
                 useAuthStore.getState().setRefreshedSession({accessToken, refreshToken: newRefreshToken })
 
