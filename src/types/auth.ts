@@ -54,5 +54,5 @@ export interface ExceptionDTO {
     message: string
     status: number
     description: string
-    timestamp: Date
+    timestamp: string
 }

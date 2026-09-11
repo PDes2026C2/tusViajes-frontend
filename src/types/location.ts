@@ -5,6 +5,6 @@ export interface CountryDTO {
 
 export interface CityDTO {
   id: number
-  isoCodeCountry: string
+  countryDTO: CountryDTO
   name: string
 }
