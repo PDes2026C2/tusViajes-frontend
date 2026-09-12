@@ -3,7 +3,18 @@
 @theme {
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-deep: var(--deep);
+  --color-deep-foreground: var(--deep-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-lagoon: var(--lagoon);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 }
 
 :root {
@@ -49,11 +60,16 @@
   }
 }
 
+.tide-gradient {
+  background: 
+    radial-gradient(100% 120% at 50% 0%, rgba(186, 230, 253, 0.45) 0%, rgba(224, 242, 254, 0.25) 50%, transparent 100%),
+    linear-gradient(180deg, #dbeafe 0%, #e0f2fe 35%, #f0f9ff 70%, #ffffff 100%);
+}
+
 #root {
   max-width: 100%;
   margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  text-align: left;
   min-height: 100svh;
   display: flex;
   flex-direction: column;

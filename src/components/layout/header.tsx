@@ -33,4 +33,5 @@ export function Header( {cartCount = 0} : HeaderProps) {
     )
 } 
 
+export const SiteHeader = Header;
 export default Header;

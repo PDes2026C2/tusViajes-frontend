@@ -1,4 +1,4 @@
-import Header from "@/components/layout/header"
+import { SiteHeader } from "@/components/layout/header"
 import { SearchPackage } from "@/components/package/search"
 import { useSearch } from "@/hooks/useSearch"
 
@@ -28,18 +28,22 @@ export function Home() {
   } = useSearch()
 
   return (
-    <>
-      <Header cartCount={0} />
-      <main className="max-w-7xl mx-auto px-6 py-12 flex flex-col gap-10">
-        <section className="flex flex-col gap-3">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-primary tracking-tight">
+    <div className="min-h-screen bg-slate-50/40 flex flex-col">
+      <SiteHeader cartCount={0} />
+
+      <section className="tide-gradient border-b border-sky-100/60">
+        <div className="mx-auto max-w-6xl px-6 pb-14 pt-12 text-left">
+          <h1 className="max-w-[18ch] text-balance text-4xl font-extrabold tracking-tight text-[#084d6e] sm:text-5xl leading-tight">
             Viajes armados a tu medida
           </h1>
-          <p className="text-slate-600 text-sm md:text-base leading-relaxed max-w-xl">
-            Vuelo de ida, vuelo de vuelta y hotel en un solo paquete. <br />
-            Explorá sin iniciar sesión y guardá todas las reservas que quieras.
+          <p className="mt-4 max-w-[46ch] text-pretty text-muted-foreground text-base sm:text-lg leading-relaxed">
+            Vuelo de ida, vuelo de vuelta y hotel en un solo paquete. Explorá sin iniciar sesión y guardá todas las
+            reservas que quieras.
           </p>
-        </section>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-6xl px-6 -mt-6 pb-16 w-full">
 
         <section>
           <SearchPackage
@@ -67,7 +71,7 @@ export function Home() {
           />
         </section>
       </main>
-    </>
+    </div>
   )
 }
 
