@@ -1,8 +1,10 @@
-import { SiteHeader } from "@/components/layout/header"
+import { Header } from "@/components/layout/header"
 import { SearchPackage } from "@/components/package/search"
+import { useHeader } from "@/hooks/useHeader"
 import { useSearch } from "@/hooks/useSearch"
 
 export function Home() {
+  const headerProps = useHeader({ cartCount: 0 })
   const {
     selectedOriginCountry,
     selectedOriginCity,
@@ -29,7 +31,7 @@ export function Home() {
 
   return (
     <div className="min-h-screen bg-slate-50/40 flex flex-col">
-      <SiteHeader cartCount={0} />
+      <Header {...headerProps} />
 
       <section className="tide-gradient border-b border-sky-100/60">
         <div className="mx-auto max-w-6xl px-6 pb-14 pt-12 text-left">
