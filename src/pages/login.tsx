@@ -1,16 +1,11 @@
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { LoginForm } from "../components/auth/LoginForm"
-import { RegisterAgencyForm } from "../components/auth/RegisterAgencyForm"
-import { RegisterBuyerForm } from "../components/auth/RegisterBuyerForm"
-import { Header } from "../components/layout/header"
+import { LoginPageView, type AuthPageTab } from "../components/auth/LoginPageView"
 import { useAuth } from "../hooks/useAuth"
 import { useHeader } from "../hooks/useHeader"
 
-type PageTab = "login" | "register_buyer" | "register_agency"
-
 export function LoginPage() {
-  const [activeTab, setActiveTab] = useState<PageTab>("login")
+  const [activeTab, setActiveTab] = useState<AuthPageTab>("login")
   const location = useLocation()
   const navigate = useNavigate()
   const headerProps = useHeader()
@@ -43,7 +38,7 @@ export function LoginPage() {
     }
   }, [isAuthenticated, user, navigate, targetRedirect])
 
-  const handleTabChange = (tab: PageTab) => {
+  const handleTabChange = (tab: AuthPageTab) => {
     clearFeedback()
     setActiveTab(tab)
   }
@@ -59,82 +54,17 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/60 flex flex-col">
-      <Header {...headerProps} />
-
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-          {/* Header tabs */}
-          <div className="flex border-b border-slate-100 pb-4 mb-6 gap-2">
-            <button
-              type="button"
-              onClick={() => handleTabChange("login")}
-              className={`pb-2 text-sm font-semibold border-b-2 cursor-pointer transition-colors ${
-                activeTab === "login"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              Iniciar Sesión
-            </button>
-            <button
-              type="button"
-              onClick={() => handleTabChange("register_buyer")}
-              className={`pb-2 text-sm font-semibold border-b-2 cursor-pointer transition-colors ${
-                activeTab === "register_buyer"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              Crear Cuenta
-            </button>
-            <button
-              type="button"
-              onClick={() => handleTabChange("register_agency")}
-              className={`pb-2 text-sm font-semibold border-b-2 cursor-pointer transition-colors ${
-                activeTab === "register_agency"
-                  ? "border-[#084d6e] text-[#084d6e]"
-                  : "border-transparent text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              Soy Agencia
-            </button>
-          </div>
-
-          {/* Form views */}
-          <div>
-            {activeTab === "login" && (
-              <LoginForm
-                onSubmit={handleLoginSubmit}
-                isLoading={isLoading}
-                error={error}
-                onSwitchToRegisterBuyer={() => handleTabChange("register_buyer")}
-                onSwitchToRegisterAgency={() => handleTabChange("register_agency")}
-              />
-            )}
-
-            {activeTab === "register_buyer" && (
-              <RegisterBuyerForm
-                onSubmit={handleRegisterBuyerSubmit}
-                isLoading={isLoading}
-                error={error}
-                onSwitchToLogin={() => handleTabChange("login")}
-              />
-            )}
-
-            {activeTab === "register_agency" && (
-              <RegisterAgencyForm
-                onSubmit={registerAgency}
-                isLoading={isLoading}
-                error={error}
-                successMessage={agencySuccessMessage}
-                onSwitchToLogin={() => handleTabChange("login")}
-              />
-            )}
-          </div>
-        </div>
-      </main>
-    </div>
+    <LoginPageView
+      headerProps={headerProps}
+      activeTab={activeTab}
+      isLoading={isLoading}
+      error={error}
+      agencySuccessMessage={agencySuccessMessage}
+      onTabChange={handleTabChange}
+      onLoginSubmit={handleLoginSubmit}
+      onRegisterBuyerSubmit={handleRegisterBuyerSubmit}
+      onRegisterAgencySubmit={registerAgency}
+    />
   )
 }
 
