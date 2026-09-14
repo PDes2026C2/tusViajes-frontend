@@ -47,7 +47,7 @@ describe("useSearch hook", () => {
       destinationCities: mockDestinationCities,
       packages: [],
       page: 0,
-      size: 20,
+      size: 10,
       totalElements: 0,
       totalPages: 0,
       isLoadingCountries: false,
@@ -79,10 +79,10 @@ describe("useSearch hook", () => {
     expect(result.current.originCities).toEqual(expectedOriginCities)
     expect(result.current.destinationCities).toEqual(expectedDestinationCities)
     expect(result.current.page).toEqual(0)
-    expect(result.current.size).toEqual(20)
+    expect(result.current.size).toEqual(10)
   })
 
-  it("fetches countries on mount if the store has no countries loaded", () => {
+  it("fetches countries and initial packages on mount if the store is empty", () => {
     // arrange
     vi.mocked(useSearchStore).mockReturnValue({
       countries: [],
@@ -90,7 +90,7 @@ describe("useSearch hook", () => {
       destinationCities: [],
       packages: [],
       page: 0,
-      size: 20,
+      size: 10,
       totalElements: 0,
       totalPages: 0,
       isLoadingCountries: false,
@@ -112,6 +112,7 @@ describe("useSearch hook", () => {
 
     // assert
     expect(mockFetchCountries).toHaveBeenCalledTimes(1)
+    expect(mockSearchPackages).toHaveBeenCalledWith({ page: 0, size: 10 })
   })
 
   it("updates origin country and fetches origin cities when selected", () => {
@@ -163,7 +164,7 @@ describe("useSearch hook", () => {
     expect(result.current.selectedDestinationCity).toEqual(expectedDestinationCityId)
   })
 
-  it("allows submitting an empty form without errors and sends default pagination", async () => {
+  it("allows submitting an empty form without errors and sends default pagination size 10", async () => {
     // arrange
     const expectedEmptyCriteria: SearchPackageCriteria = {
       originCountryIso: undefined,
@@ -173,7 +174,7 @@ describe("useSearch hook", () => {
       departureDateRange: undefined,
       arrivalDateRange: undefined,
       page: 0,
-      size: 20,
+      size: 10,
     }
     const { result } = renderHook(() => useSearch())
 
@@ -197,7 +198,7 @@ describe("useSearch hook", () => {
       departureDateRange: undefined,
       arrivalDateRange: undefined,
       page: 0,
-      size: 20,
+      size: 10,
     }
     const { result } = renderHook(() => useSearch())
 
@@ -215,6 +216,25 @@ describe("useSearch hook", () => {
 
     // assert
     expect(mockSearchPackages).toHaveBeenCalledWith(expectedCriteria)
+  })
+
+  it("navigates to the selected page when onChangePage is triggered", async () => {
+    // arrange
+    const targetPage = 2
+    const { result } = renderHook(() => useSearch())
+
+    // act
+    await act(async () => {
+      await result.current.onChangePage(targetPage)
+    })
+
+    // assert
+    expect(mockSearchPackages).toHaveBeenCalledWith(
+      expect.objectContaining({
+        page: targetPage,
+        size: 10,
+      })
+    )
   })
 
   it("clears origin country and resets origin cities when passing undefined", () => {

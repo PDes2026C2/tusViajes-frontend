@@ -48,6 +48,7 @@ export function useSearch() {
   const {
     watch,
     setValue,
+    getValues,
     handleSubmit,
     formState: { errors },
   } = form
@@ -58,6 +59,13 @@ export function useSearch() {
       fetchCountries()
     }
   }, [countries.length, fetchCountries])
+
+  // Fetch initial packages without filters on mount if not yet loaded
+  useEffect(() => {
+    if (packages.length === 0 && !isSearching) {
+      searchPackages({ page: 0, size: 10 })
+    }
+  }, [packages.length, searchPackages, isSearching])
 
   const handleSelectOriginCountry = (isoCode?: string) => {
     setValue("originCountryIso", isoCode || "", { shouldValidate: true })
@@ -106,7 +114,22 @@ export function useSearch() {
       departureDateRange: data.departureDateRange,
       arrivalDateRange: data.arrivalDateRange,
       page: 0,
-      size: 20,
+      size: 10,
+    }
+    await searchPackages(criteria)
+  }
+
+  const handleChangePage = async (newPage: number) => {
+    const currentData = getValues()
+    const criteria: SearchPackageCriteria = {
+      originCountryIso: currentData.originCountryIso || undefined,
+      originCityId: currentData.originCityId || undefined,
+      destinationCountryIso: currentData.destinationCountryIso || undefined,
+      destinationCityId: currentData.destinationCityId || undefined,
+      departureDateRange: currentData.departureDateRange,
+      arrivalDateRange: currentData.arrivalDateRange,
+      page: newPage,
+      size: 10,
     }
     await searchPackages(criteria)
   }
@@ -144,6 +167,7 @@ export function useSearch() {
     setDepartureDateRange: handleSetDepartureDateRange,
     setArrivalDateRange: handleSetArrivalDateRange,
     onSubmit: handleSubmit(onValidSubmit),
+    onChangePage: handleChangePage,
 
     // Form metadata
     errors,
