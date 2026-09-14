@@ -35,7 +35,7 @@ export const useSearchStore = create<SearchStoreState>((set) => ({
   destinationCities: [],
   packages: [],
   page: 0,
-  size: 20,
+  size: 10,
   totalElements: 0,
   totalPages: 0,
   isLoadingCountries: false,
@@ -93,7 +93,7 @@ export const useSearchStore = create<SearchStoreState>((set) => ({
   searchPackages: async (criteria: SearchPackageCriteria = {}) => {
     const finalCriteria: SearchPackageCriteria = {
       page: criteria.page ?? 0,
-      size: criteria.size ?? 20,
+      size: criteria.size ?? 10,
       ...criteria,
     }
 

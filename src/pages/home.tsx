@@ -1,7 +1,9 @@
 import { Header } from "@/components/layout/header"
 import { SearchPackage } from "@/components/package/search"
+import { PackageList } from "@/components/package/package-list"
 import { useHeader } from "@/hooks/useHeader"
 import { useSearch } from "@/hooks/useSearch"
+import type { TravelPackage } from "@/models/package"
 
 export function Home() {
   const headerProps = useHeader({ cartCount: 0 })
@@ -15,6 +17,10 @@ export function Home() {
     countries,
     originCities,
     destinationCities,
+    packages,
+    page,
+    totalPages,
+    totalElements,
     isLoadingCountries,
     isLoadingOriginCities,
     isLoadingDestinationCities,
@@ -26,8 +32,19 @@ export function Home() {
     setDepartureDateRange,
     setArrivalDateRange,
     onSubmit,
+    onChangePage,
     errors,
   } = useSearch()
+
+  const handleAddToCart = (pkg: TravelPackage) => {
+    // Handled in home orchestrator - preparing for cart integration
+    console.info("Agregando paquete al carrito:", pkg.name, pkg.id)
+  }
+
+  const handleViewDetails = (pkg: TravelPackage) => {
+    // Handled in home orchestrator - preparing for details modal/page navigation
+    console.info("Visualizando detalle del paquete:", pkg.name, pkg.id)
+  }
 
   return (
     <div className="min-h-screen bg-slate-50/40 flex flex-col">
@@ -45,8 +62,7 @@ export function Home() {
         </div>
       </section>
 
-      <main className="mx-auto max-w-6xl px-6 -mt-6 pb-16 w-full">
-
+      <main className="mx-auto max-w-6xl px-6 -mt-6 pb-16 w-full flex flex-col gap-6">
         <section>
           <SearchPackage
             originCountryIso={selectedOriginCountry}
@@ -72,6 +88,18 @@ export function Home() {
             errors={errors}
           />
         </section>
+
+        {/* Listado horizontal de paquetes y paginación centrada */}
+        <PackageList
+          packages={packages}
+          isLoading={isSearching}
+          currentPage={page}
+          totalPages={totalPages}
+          totalElements={totalElements}
+          onAddToCart={handleAddToCart}
+          onViewDetails={handleViewDetails}
+          onPageChange={onChangePage}
+        />
       </main>
     </div>
   )

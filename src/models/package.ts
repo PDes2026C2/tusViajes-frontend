@@ -1,4 +1,10 @@
-import type { FlightDTO, PageResponseDTO, TravelPackageResponseDTO } from "../types/package"
+import type {
+  AgencyResponseDTO,
+  FlightDTO,
+  HotelResponseDTO,
+  PageResponseDTO,
+  TravelPackageResponseDTO,
+} from "../types/package"
 import { locationMappers, type City } from "./location"
 
 export interface Agency {
@@ -16,11 +22,11 @@ export interface Hotel {
 
 export interface Flight {
   id: number
-  flightNumber?: string
-  originCity?: City
-  destinationCity?: City
-  departureTime?: Date
-  arrivalTime?: Date
+  flightNumber: string
+  originCity: City
+  destinationCity: City
+  departureTime: Date
+  arrivalTime: Date
 }
 
 export interface TravelPackage {
@@ -28,12 +34,13 @@ export interface TravelPackage {
   name: string
   description: string
   price: number
-  startDate: Date
-  endDate: Date
+  initialDate: Date
+  finalDate: Date
+  nights: number
   hotel: Hotel
-  agency: Agency
   departureFlight: Flight
   arrivalFlight: Flight
+  agency: Agency
 }
 
 export interface Page<T> {
@@ -44,7 +51,26 @@ export interface Page<T> {
   number: number
 }
 
+export function calculateNights(initialDate: Date, finalDate: Date): number {
+  const diffMs = finalDate.getTime() - initialDate.getTime()
+  const nights = Math.round(diffMs / (1000 * 60 * 60 * 24))
+  return Math.max(0, nights)
+}
+
 export const packageMappers = {
+  mapAgencyDTOToModel: (dto: AgencyResponseDTO): Agency => ({
+    id: dto.id,
+    businessName: dto.businessName,
+    taxId: dto.taxId,
+  }),
+
+  mapHotelDTOToModel: (dto: HotelResponseDTO): Hotel => ({
+    id: dto.id,
+    name: dto.name,
+    city: locationMappers.mapCityDTOToModel(dto.city),
+    photoUrl: dto.photoUrl,
+  }),
+
   mapFlightDTOToModel: (dto: FlightDTO): Flight => ({
     id: dto.id,
     flightNumber: dto.flightNumber,
@@ -54,27 +80,25 @@ export const packageMappers = {
     arrivalTime: new Date(dto.arrivalTime),
   }),
 
-  mapDTOToModel: (dto: TravelPackageResponseDTO): TravelPackage => ({
-    id: dto.id,
-    name: dto.name,
-    description: dto.description,
-    price: dto.price,
-    startDate: new Date(dto.startDate),
-    endDate: new Date(dto.endDate),
-    hotel: {
-      id: dto.hotel.id,
-      name: dto.hotel.name,
-      city: locationMappers.mapCityDTOToModel(dto.hotel.city),
-      photoUrl: dto.hotel.photoUrl,
-    },
-    agency: {
-      id: dto.agency.id,
-      businessName: dto.agency.businessName,
-      taxId: dto.agency.taxId,
-    },
-    departureFlight: packageMappers.mapFlightDTOToModel(dto.departureFlight),
-    arrivalFlight: packageMappers.mapFlightDTOToModel(dto.arrivalFlight),
-  }),
+  mapDTOToModel: (dto: TravelPackageResponseDTO): TravelPackage => {
+    const initialDate = new Date(dto.initialDate)
+    const finalDate = new Date(dto.finalDate)
+    const nights = calculateNights(initialDate, finalDate)
+
+    return {
+      id: dto.id,
+      name: dto.name,
+      description: dto.description,
+      price: dto.price,
+      initialDate,
+      finalDate,
+      nights,
+      hotel: packageMappers.mapHotelDTOToModel(dto.hotel),
+      departureFlight: packageMappers.mapFlightDTOToModel(dto.departureFlight),
+      arrivalFlight: packageMappers.mapFlightDTOToModel(dto.arrivalFlight),
+      agency: packageMappers.mapAgencyDTOToModel(dto.agency),
+    }
+  },
 
   mapPageDTOToModel: (
     dto: PageResponseDTO<TravelPackageResponseDTO>
