@@ -60,12 +60,11 @@ export function useSearch() {
     }
   }, [countries.length, fetchCountries])
 
-  // Fetch initial packages without filters on mount if not yet loaded
   useEffect(() => {
-    if (packages.length === 0 && !isSearching) {
+    if (!isSearching) {
       searchPackages({ page: 0, size: 10 })
     }
-  }, [packages.length, searchPackages, isSearching])
+  }, [])
 
   const handleSelectOriginCountry = (isoCode?: string) => {
     setValue("originCountryIso", isoCode || "", { shouldValidate: true })

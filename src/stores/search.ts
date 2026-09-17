@@ -101,7 +101,7 @@ export const useSearchStore = create<SearchStoreState>((set) => ({
     try {
       const pageDTO = await packageDataSource.searchPackages(finalCriteria)
       const pageModel = packageMappers.mapPageDTOToModel(pageDTO)
-
+      
       set({
         packages: pageModel.content,
         totalElements: pageModel.totalElements,
