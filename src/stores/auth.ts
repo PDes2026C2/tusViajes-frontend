@@ -1,6 +1,7 @@
 import { createJSONStorage, persist } from "zustand/middleware"
 import { authDataSource } from "../datasources/auth"
 import { authMappers, type AuthTokens, type LoginCredentials, type RegisterAgencyData, type RegisterBuyerData, type User } from "../models/auth"
+import type { AgencyRegistrationResponseDTO } from "../types/auth"
 import { create } from "zustand"
 
 
@@ -13,7 +14,7 @@ export interface AuthState {
     setRefreshedSession: (tokens: AuthTokens) => void
     login: (credentials: LoginCredentials) => Promise<void>
     registerBuyer: (data: RegisterBuyerData) => Promise<void>
-    registerAgency: (data: RegisterAgencyData) => Promise<void>
+    registerAgency: (data: RegisterAgencyData) => Promise<AgencyRegistrationResponseDTO>
     logout: () => void
 }
 
@@ -92,7 +93,7 @@ export const useAuthStore = create<AuthState>()(
                     }
                 },
 
-                registerAgency: async (data) => {
+                registerAgency: async (data: RegisterAgencyData): Promise<AgencyRegistrationResponseDTO> => {
                     set({
                         isLoading: true
                     })
@@ -101,19 +102,25 @@ export const useAuthStore = create<AuthState>()(
                         const registerDTO = authMappers.mapRegisterAgencyToDTO(data)
                         const responseDTO = await authDataSource.registerAgency(registerDTO)
 
-                        const user: User = {
-                            id: responseDTO.id,
-                            email: responseDTO.email,
-                            role: 'AGENCY'
+                        if (responseDTO.status === 'AUTHORIZED') {
+                            const user: User = {
+                                id: responseDTO.id,
+                                email: responseDTO.email,
+                                role: 'AGENCY'
+                            }
+                            set({
+                                isAuthenticated: true,
+                                isLoading: false,
+                                user: user
+                            })
+                        } else {
+                            set({
+                                isLoading: false
+                            })
                         }
-
-                        set({
-                            isAuthenticated: true,
-                            isLoading: false,
-                            user: user
-                        })
+                        return responseDTO
                     } catch (error) {
-                        console.error('Login failed', error)
+                        console.error('Agency registration failed', error)
                         throw error
                     } finally {
                         set({isLoading: false})

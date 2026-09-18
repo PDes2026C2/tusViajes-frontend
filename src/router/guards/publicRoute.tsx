@@ -1,9 +1,8 @@
 import { Navigate, Outlet } from "react-router-dom"
-import { useAuthStore } from "../../stores/auth"
+import { useAuth } from "../../hooks/useAuth"
 
 function PublicRoute() {
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-    const user = useAuthStore((state) => state.user)
+    const { isAuthenticated, user } = useAuth()
     if (isAuthenticated && user) {
         switch (user.role) {
             case 'BUYER':

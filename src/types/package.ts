@@ -27,12 +27,12 @@ export interface TravelPackageResponseDTO {
   name: string
   description: string
   price: number
-  startDate: string
-  endDate: string
+  initialDate: string
+  finalDate: string
   hotel: HotelResponseDTO
-  agency: AgencyResponseDTO
   departureFlight: FlightDTO
   arrivalFlight: FlightDTO
+  agency: AgencyResponseDTO
 }
 
 export interface PageResponseDTO<T> {

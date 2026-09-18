@@ -1,7 +1,8 @@
 import axios from "axios"
 import { useAuthStore } from "../stores/auth"
+import { errorMappers } from "../models/error"
 
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 
 const apiClient = axios.create({
     baseURL: API_URL,
@@ -19,7 +20,7 @@ apiClient.interceptors.request.use(
         return config
     },
     (error) => {
-        return Promise.reject(error)
+        return Promise.reject(errorMappers.fromAxiosError(error))
     }
 )
 
@@ -28,9 +29,8 @@ apiClient.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest?._retry) {
             originalRequest._retry = true
-        
 
             try {
                 const { refreshToken } = useAuthStore.getState()
@@ -48,11 +48,11 @@ apiClient.interceptors.response.use(
                 return apiClient(originalRequest)
             } catch (refreshError) {
                 useAuthStore.getState().logout()
-                return Promise.reject(refreshError)
+                return Promise.reject(errorMappers.fromAxiosError(refreshError))
             }
         }
 
-        return Promise.reject(error)
+        return Promise.reject(errorMappers.fromAxiosError(error))
     }
 )
 

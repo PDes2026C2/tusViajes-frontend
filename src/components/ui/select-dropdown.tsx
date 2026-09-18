@@ -73,7 +73,7 @@ export function SelectDropdown({
             "h-11 w-full rounded-xl border border-slate-200 px-3 flex items-center justify-between text-sm bg-white cursor-pointer transition-colors shadow-xs outline-none",
             "hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary",
             disabled && "opacity-50 cursor-not-allowed bg-slate-50",
-            error && "border-red-400 focus-visible:border-red-500 focus-visible:ring-red-200"
+            error && "border-error focus-visible:border-error focus-visible:ring-error/20"
           )}
         >
           <div className="flex items-center gap-2.5 truncate">
@@ -135,7 +135,7 @@ export function SelectDropdown({
                 onSelect(undefined)
                 setOpen(false)
               }}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-red-500 hover:bg-red-50 transition-colors text-left cursor-pointer border-b border-slate-100 mb-1 font-medium"
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-error hover:bg-error/10 transition-colors text-left cursor-pointer border-b border-slate-100 mb-1 font-medium"
             >
               <X className="h-3.5 w-3.5" />
               <span>Borrar selección</span>
@@ -183,7 +183,7 @@ export function SelectDropdown({
           )}
         </PopoverContent>
       </Popover>
-      {error && <span className="text-xs text-red-500 font-medium">{error}</span>}
+      {error && <span className="text-xs text-error font-medium">{error}</span>}
     </div>
   )
 }

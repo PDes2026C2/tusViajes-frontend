@@ -81,7 +81,7 @@ export function SearchPackage({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Origin Country */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+            <label className="text-xs font-semibold tracking-wider text-slate-500 uppercase text-left">
               PAÍS DE ORIGEN
             </label>
             <SelectDropdown
@@ -97,7 +97,7 @@ export function SearchPackage({
 
           {/* Origin City */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+            <label className="text-xs font-semibold tracking-wider text-slate-500 uppercase text-left">
               CIUDAD DE ORIGEN
             </label>
             <SelectDropdown
@@ -114,7 +114,7 @@ export function SearchPackage({
 
           {/* Destination Country */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+            <label className="text-xs font-semibold tracking-wider text-slate-500 uppercase text-left">
               PAÍS DESTINO
             </label>
             <SelectDropdown
@@ -130,7 +130,7 @@ export function SearchPackage({
 
           {/* Destination City */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+            <label className="text-xs font-semibold tracking-wider text-slate-500 uppercase text-left">
               CIUDAD DESTINO
             </label>
             <SelectDropdown
@@ -149,7 +149,7 @@ export function SearchPackage({
         {/* Date Ranges */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+            <label className="text-xs font-semibold tracking-wider text-slate-500 uppercase text-left">
               Fecha de salida
             </label>
             <DatePickerWithRange
@@ -158,7 +158,7 @@ export function SearchPackage({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
+            <label className="text-xs font-semibold tracking-wider text-slate-500 uppercase text-left">
               Fecha de regreso
             </label>
             <DatePickerWithRange
