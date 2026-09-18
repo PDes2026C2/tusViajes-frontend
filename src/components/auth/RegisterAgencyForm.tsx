@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Building2, CheckCircle2, FileText, Loader2, Lock, Mail } from "lucide-react"
+import { cn } from "cn"
 import { registerAgencySchema, type RegisterAgencyFormData } from "../../models/auth.schema"
 import type { RegisterAgencyData } from "../../models/auth"
 import { Button } from "../ui/button"
@@ -8,7 +9,6 @@ import { Button } from "../ui/button"
 interface RegisterAgencyFormProps {
   onSubmit: (data: RegisterAgencyData) => Promise<unknown> | void
   isLoading?: boolean
-  error?: string | null
   successMessage?: string | null
   onSwitchToLogin?: () => void
 }
@@ -16,7 +16,6 @@ interface RegisterAgencyFormProps {
 export function RegisterAgencyForm({
   onSubmit,
   isLoading = false,
-  error,
   successMessage,
   onSwitchToLogin,
 }: RegisterAgencyFormProps) {
@@ -57,7 +56,7 @@ export function RegisterAgencyForm({
         <Button
           type="button"
           onClick={onSwitchToLogin}
-          className="rounded-xl bg-[#084d6e] hover:bg-[#084d6e]/90 text-white font-semibold px-6 py-2.5 h-auto shadow-sm cursor-pointer mt-2"
+          className="rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold px-6 py-2.5 h-auto shadow-sm cursor-pointer mt-2"
         >
           Ir a Iniciar Sesión
         </Button>
@@ -67,11 +66,6 @@ export function RegisterAgencyForm({
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-3.5 text-left">
-      {error && (
-        <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
 
       {/* Razón Social */}
       <div className="flex flex-col gap-1">
@@ -85,11 +79,16 @@ export function RegisterAgencyForm({
             placeholder="Viajes del Sol S.A."
             disabled={isLoading}
             {...register("businessName")}
-            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50"
+            className={cn(
+              "w-full rounded-xl border bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 transition-all disabled:opacity-50",
+              errors.businessName
+                ? "border-error focus:border-error focus:ring-error/20"
+                : "border-slate-200 focus:border-primary focus:ring-primary/20"
+            )}
           />
         </div>
         {errors.businessName && (
-          <span className="text-xs text-red-500">{errors.businessName.message}</span>
+          <span className="text-xs text-error font-medium">{errors.businessName.message}</span>
         )}
       </div>
 
@@ -105,11 +104,16 @@ export function RegisterAgencyForm({
             placeholder="30-12345678-9"
             disabled={isLoading}
             {...register("taxId")}
-            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50"
+            className={cn(
+              "w-full rounded-xl border bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 transition-all disabled:opacity-50",
+              errors.taxId
+                ? "border-error focus:border-error focus:ring-error/20"
+                : "border-slate-200 focus:border-primary focus:ring-primary/20"
+            )}
           />
         </div>
         {errors.taxId && (
-          <span className="text-xs text-red-500">{errors.taxId.message}</span>
+          <span className="text-xs text-error font-medium">{errors.taxId.message}</span>
         )}
       </div>
 
@@ -126,11 +130,16 @@ export function RegisterAgencyForm({
             autoComplete="email"
             disabled={isLoading}
             {...register("email")}
-            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50"
+            className={cn(
+              "w-full rounded-xl border bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 transition-all disabled:opacity-50",
+              errors.email
+                ? "border-error focus:border-error focus:ring-error/20"
+                : "border-slate-200 focus:border-primary focus:ring-primary/20"
+            )}
           />
         </div>
         {errors.email && (
-          <span className="text-xs text-red-500">{errors.email.message}</span>
+          <span className="text-xs text-error font-medium">{errors.email.message}</span>
         )}
       </div>
 
@@ -147,16 +156,21 @@ export function RegisterAgencyForm({
             autoComplete="new-password"
             disabled={isLoading}
             {...register("password")}
-            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50"
+            className={cn(
+              "w-full rounded-xl border bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 transition-all disabled:opacity-50",
+              errors.password
+                ? "border-error focus:border-error focus:ring-error/20"
+                : "border-slate-200 focus:border-primary focus:ring-primary/20"
+            )}
           />
         </div>
         {errors.password && (
-          <span className="text-xs text-red-500">{errors.password.message}</span>
+          <span className="text-xs text-error font-medium">{errors.password.message}</span>
         )}
       </div>
 
       {/* Info notice */}
-      <div className="rounded-xl bg-sky-50 border border-sky-100 p-3 text-xs text-[#084d6e] leading-relaxed">
+      <div className="rounded-xl bg-sky-50 border border-sky-100 p-3 text-xs text-primary leading-relaxed">
         <strong>Nota:</strong> Tu postulación será evaluada por nuestro equipo administrativo antes de habilitar la publicación de paquetes.
       </div>
 
@@ -164,7 +178,7 @@ export function RegisterAgencyForm({
       <Button
         type="submit"
         disabled={isLoading}
-        className="w-full rounded-xl bg-[#084d6e] hover:bg-[#084d6e]/90 text-white font-semibold py-3 h-auto shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-all mt-1"
+        className="w-full rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold py-3 h-auto shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-all mt-1"
       >
         {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
         <span>{isLoading ? "Enviando postulación..." : "Postular mi Agencia"}</span>
@@ -178,7 +192,7 @@ export function RegisterAgencyForm({
           onClick={onSwitchToLogin}
           className="text-primary font-semibold hover:underline cursor-pointer"
         >
-          Iniciar sesión
+          Iniciá sesión
         </button>
       </div>
     </form>

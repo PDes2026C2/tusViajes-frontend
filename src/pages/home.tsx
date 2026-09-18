@@ -52,7 +52,7 @@ export function Home() {
 
       <section className="tide-gradient border-b border-sky-100/60">
         <div className="mx-auto max-w-6xl px-6 pb-14 pt-12 text-left">
-          <h1 className="max-w-[18ch] text-balance text-4xl font-extrabold tracking-tight text-[#084d6e] sm:text-5xl leading-tight">
+          <h1 className="max-w-[18ch] text-balance text-4xl font-extrabold tracking-tight text-primary sm:text-5xl leading-tight">
             Viajes armados a tu medida
           </h1>
           <p className="mt-4 max-w-[46ch] text-pretty text-muted-foreground text-base sm:text-lg leading-relaxed">

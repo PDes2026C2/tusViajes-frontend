@@ -73,7 +73,7 @@ export function TravelPackageCard({
             </span>
           </div>
         )}
-        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-full text-xs font-semibold text-[#084d6e] shadow-xs flex items-center gap-1.5">
+        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-full text-xs font-semibold text-primary shadow-xs flex items-center gap-1.5">
           <Moon className="w-3.5 h-3.5 text-primary" />
           <span>{nights} {nights === 1 ? "noche" : "noches"}</span>
         </div>
@@ -146,7 +146,7 @@ export function TravelPackageCard({
 
         {/* Hotel info row */}
         <div className="flex items-center gap-2.5 text-xs text-slate-600 bg-slate-50/50 p-2 rounded-lg border border-slate-100/80">
-          <Building2 className="w-4 h-4 text-[#084d6e] shrink-0" />
+          <Building2 className="w-4 h-4 text-primary shrink-0" />
           <span className="font-semibold text-slate-800">{hotel.name}</span>
           <span className="text-slate-500">en {hotel.city.name}</span>
           <span className="text-slate-300">•</span>
@@ -162,7 +162,7 @@ export function TravelPackageCard({
           <span className="text-xs font-medium text-slate-500 block">
             Precio final por persona
           </span>
-          <div className="text-2xl sm:text-3xl font-extrabold text-[#084d6e] tracking-tight mt-0.5">
+          <div className="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight mt-0.5">
             {formatPrice(price)}
           </div>
           <span className="text-[11px] text-slate-400 block mt-0.5">

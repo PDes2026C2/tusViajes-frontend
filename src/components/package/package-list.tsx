@@ -82,7 +82,7 @@ export function PackageList({
       {/* Empty state */}
       {!isLoading && packages.length === 0 && (
         <div className="bg-white border border-slate-200 rounded-3xl p-10 md:p-14 text-center shadow-xs flex flex-col items-center justify-center">
-          <div className="w-14 h-14 rounded-2xl bg-sky-50 text-[#084d6e] flex items-center justify-center mb-4">
+          <div className="w-14 h-14 rounded-2xl bg-sky-50 text-primary flex items-center justify-center mb-4">
             <Compass className="w-7 h-7" />
           </div>
           <h3 className="text-lg font-bold text-slate-800">

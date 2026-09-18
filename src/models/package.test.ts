@@ -173,6 +173,11 @@ describe("package models and mappers", () => {
             departureTime: "2026-09-10T12:00:00Z",
             arrivalTime: "2026-09-11T06:00:00Z",
           },
+          agency: {
+            id: 1,
+            businessName: "TusViajes Premium",
+            taxId: "30-11223344-5",
+          },
         },
       ],
       totalElements: 1,

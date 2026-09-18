@@ -34,6 +34,11 @@ describe("PackageList component", () => {
         departureTime: new Date("2026-11-08T10:00:00Z"),
         arrivalTime: new Date("2026-11-08T18:00:00Z"),
       },
+      agency: {
+        id: 1,
+        businessName: "TusViajes Premium",
+        taxId: "30-11223344-5",
+      },
     },
     {
       id: 2,
@@ -63,6 +68,11 @@ describe("PackageList component", () => {
         destinationCity: { id: 1, name: "Buenos Aires", country: { isoCode: "AR", name: "Argentina" } },
         departureTime: new Date("2026-12-10T10:00:00Z"),
         arrivalTime: new Date("2026-12-11T04:00:00Z"),
+      },
+      agency: {
+        id: 2,
+        businessName: "Caribe & Sol",
+        taxId: "30-99887766-4",
       },
     },
   ]

@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { IdCard, Loader2, Lock, Mail, Phone, User as UserIcon } from "lucide-react"
+import { cn } from "cn"
 import { registerBuyerSchema, type RegisterBuyerFormData } from "../../models/auth.schema"
 import type { RegisterBuyerData } from "../../models/auth"
 import { Button } from "../ui/button"
@@ -8,14 +9,12 @@ import { Button } from "../ui/button"
 interface RegisterBuyerFormProps {
   onSubmit: (data: RegisterBuyerData) => Promise<unknown> | void
   isLoading?: boolean
-  error?: string | null
   onSwitchToLogin?: () => void
 }
 
 export function RegisterBuyerForm({
   onSubmit,
   isLoading = false,
-  error,
   onSwitchToLogin,
 }: RegisterBuyerFormProps) {
   const {
@@ -41,11 +40,6 @@ export function RegisterBuyerForm({
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-3.5 text-left">
-      {error && (
-        <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
 
       {/* Nombre y Apellido */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -60,11 +54,16 @@ export function RegisterBuyerForm({
               placeholder="Juan"
               disabled={isLoading}
               {...register("firstName")}
-              className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50"
+              className={cn(
+                "w-full rounded-xl border bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 transition-all disabled:opacity-50",
+                errors.firstName
+                  ? "border-error focus:border-error focus:ring-error/20"
+                  : "border-slate-200 focus:border-primary focus:ring-primary/20"
+              )}
             />
           </div>
           {errors.firstName && (
-            <span className="text-xs text-red-500">{errors.firstName.message}</span>
+            <span className="text-xs text-error font-medium">{errors.firstName.message}</span>
           )}
         </div>
 
@@ -79,11 +78,16 @@ export function RegisterBuyerForm({
               placeholder="Pérez"
               disabled={isLoading}
               {...register("lastName")}
-              className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50"
+              className={cn(
+                "w-full rounded-xl border bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 transition-all disabled:opacity-50",
+                errors.lastName
+                  ? "border-error focus:border-error focus:ring-error/20"
+                  : "border-slate-200 focus:border-primary focus:ring-primary/20"
+              )}
             />
           </div>
           {errors.lastName && (
-            <span className="text-xs text-red-500">{errors.lastName.message}</span>
+            <span className="text-xs text-error font-medium">{errors.lastName.message}</span>
           )}
         </div>
       </div>
@@ -101,11 +105,16 @@ export function RegisterBuyerForm({
               placeholder="12345678"
               disabled={isLoading}
               {...register("nationalId")}
-              className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50"
+              className={cn(
+                "w-full rounded-xl border bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 transition-all disabled:opacity-50",
+                errors.nationalId
+                  ? "border-error focus:border-error focus:ring-error/20"
+                  : "border-slate-200 focus:border-primary focus:ring-primary/20"
+              )}
             />
           </div>
           {errors.nationalId && (
-            <span className="text-xs text-red-500">{errors.nationalId.message}</span>
+            <span className="text-xs text-error font-medium">{errors.nationalId.message}</span>
           )}
         </div>
 
@@ -120,11 +129,16 @@ export function RegisterBuyerForm({
               placeholder="11 1234-5678"
               disabled={isLoading}
               {...register("phoneNumber")}
-              className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50"
+              className={cn(
+                "w-full rounded-xl border bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 transition-all disabled:opacity-50",
+                errors.phoneNumber
+                  ? "border-error focus:border-error focus:ring-error/20"
+                  : "border-slate-200 focus:border-primary focus:ring-primary/20"
+              )}
             />
           </div>
           {errors.phoneNumber && (
-            <span className="text-xs text-red-500">{errors.phoneNumber.message}</span>
+            <span className="text-xs text-error font-medium">{errors.phoneNumber.message}</span>
           )}
         </div>
       </div>
@@ -142,11 +156,16 @@ export function RegisterBuyerForm({
             autoComplete="email"
             disabled={isLoading}
             {...register("email")}
-            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50"
+            className={cn(
+              "w-full rounded-xl border bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 transition-all disabled:opacity-50",
+              errors.email
+                ? "border-error focus:border-error focus:ring-error/20"
+                : "border-slate-200 focus:border-primary focus:ring-primary/20"
+            )}
           />
         </div>
         {errors.email && (
-          <span className="text-xs text-red-500">{errors.email.message}</span>
+          <span className="text-xs text-error font-medium">{errors.email.message}</span>
         )}
       </div>
 
@@ -163,11 +182,16 @@ export function RegisterBuyerForm({
             autoComplete="new-password"
             disabled={isLoading}
             {...register("password")}
-            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50"
+            className={cn(
+              "w-full rounded-xl border bg-white pl-10 pr-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 transition-all disabled:opacity-50",
+              errors.password
+                ? "border-error focus:border-error focus:ring-error/20"
+                : "border-slate-200 focus:border-primary focus:ring-primary/20"
+            )}
           />
         </div>
         {errors.password && (
-          <span className="text-xs text-red-500">{errors.password.message}</span>
+          <span className="text-xs text-error font-medium">{errors.password.message}</span>
         )}
       </div>
 
@@ -189,7 +213,7 @@ export function RegisterBuyerForm({
           onClick={onSwitchToLogin}
           className="text-primary font-semibold hover:underline cursor-pointer"
         >
-          Iniciar sesión
+          Iniciá sesión
         </button>
       </div>
     </form>

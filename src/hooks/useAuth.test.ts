@@ -1,5 +1,6 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { toast } from "react-toastify"
 import { useAuth } from "./useAuth"
 import { useAuthStore } from "../stores/auth"
 import { useAuthModalStore } from "../stores/authModal"
@@ -9,6 +10,15 @@ import type { AgencyRegistrationResponseDTO } from "../types/auth"
 const mockNavigate = vi.fn()
 vi.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
+}))
+
+vi.mock("react-toastify", () => ({
+  toast: {
+    error: vi.fn(),
+    success: vi.fn(),
+    info: vi.fn(),
+    warning: vi.fn(),
+  },
 }))
 
 vi.mock("../stores/auth", () => ({
@@ -109,7 +119,7 @@ describe("useAuth hook", () => {
     })
   })
 
-  it("redirects to /admin/panel when logging in as ADMIN", async () => {
+  it("redirects to /admin/panel and shows success toast when logging in as ADMIN", async () => {
     // arrange
     const expectedRoute = "/admin/panel"
     mockLogin.mockImplementation(async () => {
@@ -135,9 +145,10 @@ describe("useAuth hook", () => {
     // assert
     expect(mockCloseModal).toHaveBeenCalledTimes(1)
     expect(mockNavigate).toHaveBeenCalledWith(expectedRoute)
+    expect(toast.success).toHaveBeenCalledWith("¡Bienvenido! Sesión iniciada correctamente.")
   })
 
-  it("redirects to /agency/panel when logging in as AGENCY", async () => {
+  it("redirects to /agency/panel and shows success toast when logging in as AGENCY", async () => {
     // arrange
     const expectedRoute = "/agency/panel"
     mockLogin.mockImplementation(async () => {
@@ -163,6 +174,7 @@ describe("useAuth hook", () => {
     // assert
     expect(mockCloseModal).toHaveBeenCalledTimes(1)
     expect(mockNavigate).toHaveBeenCalledWith(expectedRoute)
+    expect(toast.success).toHaveBeenCalledWith("¡Bienvenido! Sesión iniciada correctamente.")
   })
 
   it("redirects to custom target path when logging in as BUYER", async () => {
@@ -191,9 +203,10 @@ describe("useAuth hook", () => {
     // assert
     expect(mockCloseModal).toHaveBeenCalledTimes(1)
     expect(mockNavigate).toHaveBeenCalledWith(targetRedirectPath)
+    expect(toast.success).toHaveBeenCalledWith("¡Bienvenido! Sesión iniciada correctamente.")
   })
 
-  it("surfaces error feedback when login fails", async () => {
+  it("surfaces error feedback via toast when login fails", async () => {
     // arrange
     const errorMessage = "Credenciales incorrectas"
     mockLogin.mockRejectedValue(new Error(errorMessage))
@@ -205,11 +218,11 @@ describe("useAuth hook", () => {
     })
 
     // assert
-    expect(result.current.error).toEqual(errorMessage)
+    expect(toast.error).toHaveBeenCalledWith(errorMessage)
     expect(mockNavigate).not.toHaveBeenCalled()
   })
 
-  it("registers a buyer and redirects to destination", async () => {
+  it("registers a buyer, shows success toast and redirects to destination", async () => {
     // arrange
     const expectedRoute = "/home"
     mockRegisterBuyer.mockImplementation(async () => {
@@ -236,9 +249,26 @@ describe("useAuth hook", () => {
     expect(mockRegisterBuyer).toHaveBeenCalledWith(buyerData)
     expect(mockCloseModal).toHaveBeenCalledTimes(1)
     expect(mockNavigate).toHaveBeenCalledWith(expectedRoute)
+    expect(toast.success).toHaveBeenCalledWith("¡Cuenta creada con éxito! Bienvenido a TusViajes.")
   })
 
-  it("registers an agency and surfaces pending approval success message", async () => {
+  it("surfaces error feedback via toast when buyer registration fails", async () => {
+    // arrange
+    const errorMessage = "El email ya está registrado"
+    mockRegisterBuyer.mockRejectedValue(new Error(errorMessage))
+    const { result } = renderHook(() => useAuth())
+
+    // act
+    await act(async () => {
+      await result.current.registerBuyer(buyerData)
+    })
+
+    // assert
+    expect(toast.error).toHaveBeenCalledWith(errorMessage)
+    expect(mockNavigate).not.toHaveBeenCalled()
+  })
+
+  it("registers an agency and surfaces pending approval success message via toast", async () => {
     // arrange
     const expectedMessage = "Postulación recibida"
     const { result } = renderHook(() => useAuth())
@@ -250,7 +280,23 @@ describe("useAuth hook", () => {
 
     // assert
     expect(mockRegisterAgency).toHaveBeenCalledWith(agencyData)
-    expect(result.current.agencySuccessMessage).toEqual(expectedMessage)
+    expect(toast.success).toHaveBeenCalledWith(expectedMessage)
+    expect(mockNavigate).not.toHaveBeenCalled()
+  })
+
+  it("surfaces error feedback via toast when agency registration fails", async () => {
+    // arrange
+    const errorMessage = "El CUIT ya está registrado"
+    mockRegisterAgency.mockRejectedValue(new Error(errorMessage))
+    const { result } = renderHook(() => useAuth())
+
+    // act
+    await act(async () => {
+      await result.current.registerAgency(agencyData)
+    })
+
+    // assert
+    expect(toast.error).toHaveBeenCalledWith(errorMessage)
     expect(mockNavigate).not.toHaveBeenCalled()
   })
 

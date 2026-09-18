@@ -33,7 +33,7 @@ export function Header({
             <button
                 type="button"
                 onClick={onNavigateHome}
-                className="text-2xl font-bold text-[#084d6e] tracking-tight hover:opacity-90 transition-opacity cursor-pointer bg-transparent border-0 p-0"
+                className="text-2xl font-bold text-primary tracking-tight hover:opacity-90 transition-opacity cursor-pointer bg-transparent border-0 p-0"
             >
                 Tus Viajes
             </button>
@@ -41,7 +41,7 @@ export function Header({
             {/* Postulate como Agencia banner/button */}
             {userRole !== "ADMIN" && (
                 <div className="hidden md:flex items-center gap-3 border border-slate-200 rounded-full pl-5 pr-1.5 bg-white shadow-xs">
-                    <span className="text-sm font-medium text-[#084d6e]">
+                    <span className="text-sm font-medium text-primary">
                         {userRole === "AGENCY" ? "Tu panel de gestión" : "¿Querés ofrecer paquetes?"}
                     </span>
                     <Button
@@ -59,7 +59,7 @@ export function Header({
                     <Button
                         type="button"
                         onClick={onAdminClick}
-                        className="rounded-full bg-[#084d6e] hover:bg-[#084d6e]/90 text-white text-xs font-semibold px-4 py-2 h-auto cursor-pointer"
+                        className="rounded-full bg-primary hover:bg-primary/90 text-white text-xs font-semibold px-4 py-2 h-auto cursor-pointer"
                     >
                         Panel Administrador
                     </Button>
@@ -98,7 +98,7 @@ export function Header({
                             type="button"
                             variant="outline"
                             onClick={onLogoutClick}
-                            className="rounded-full border border-slate-200 text-slate-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50 text-xs font-medium px-3.5 py-2 h-auto transition-all cursor-pointer"
+                            className="rounded-full border border-slate-200 text-slate-600 hover:text-error hover:border-error/30 hover:bg-error/5 text-xs font-medium px-3.5 py-2 h-auto transition-all cursor-pointer"
                         >
                             Cerrar sesión
                         </Button>

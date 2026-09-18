@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2, Lock, Mail } from "lucide-react"
+import { cn } from "cn"
 import { loginSchema, type LoginFormData } from "../../models/auth.schema"
 import type { LoginCredentials } from "../../models/auth"
 import { Button } from "../ui/button"
@@ -8,7 +9,6 @@ import { Button } from "../ui/button"
 interface LoginFormProps {
   onSubmit: (credentials: LoginCredentials) => Promise<unknown> | void
   isLoading?: boolean
-  error?: string | null
   onSwitchToRegisterBuyer?: () => void
   onSwitchToRegisterAgency?: () => void
 }
@@ -16,7 +16,6 @@ interface LoginFormProps {
 export function LoginForm({
   onSubmit,
   isLoading = false,
-  error,
   onSwitchToRegisterBuyer,
   onSwitchToRegisterAgency,
 }: LoginFormProps) {
@@ -39,11 +38,6 @@ export function LoginForm({
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-4 text-left">
-      {error && (
-        <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
 
       {/* Email */}
       <div className="flex flex-col gap-1.5">
@@ -58,11 +52,16 @@ export function LoginForm({
             autoComplete="email"
             disabled={isLoading}
             {...register("email")}
-            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50"
+            className={cn(
+              "w-full rounded-xl border bg-white pl-10 pr-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 transition-all disabled:opacity-50",
+              errors.email
+                ? "border-error focus:border-error focus:ring-error/20"
+                : "border-slate-200 focus:border-primary focus:ring-primary/20"
+            )}
           />
         </div>
         {errors.email && (
-          <span className="text-xs text-red-500">{errors.email.message}</span>
+          <span className="text-xs text-error font-medium">{errors.email.message}</span>
         )}
       </div>
 
@@ -79,11 +78,16 @@ export function LoginForm({
             autoComplete="current-password"
             disabled={isLoading}
             {...register("password")}
-            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50"
+            className={cn(
+              "w-full rounded-xl border bg-white pl-10 pr-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 transition-all disabled:opacity-50",
+              errors.password
+                ? "border-error focus:border-error focus:ring-error/20"
+                : "border-slate-200 focus:border-primary focus:ring-primary/20"
+            )}
           />
         </div>
         {errors.password && (
-          <span className="text-xs text-red-500">{errors.password.message}</span>
+          <span className="text-xs text-error font-medium">{errors.password.message}</span>
         )}
       </div>
 
@@ -114,7 +118,7 @@ export function LoginForm({
           <button
             type="button"
             onClick={onSwitchToRegisterAgency}
-            className="text-[#084d6e] font-semibold hover:underline cursor-pointer"
+            className="text-primary font-semibold hover:underline cursor-pointer"
           >
             Postulate como Agencia
           </button>

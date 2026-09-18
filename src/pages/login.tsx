@@ -19,9 +19,6 @@ export function LoginPage() {
     user,
     isAuthenticated,
     isLoading,
-    error,
-    agencySuccessMessage,
-    clearFeedback,
     login,
     registerBuyer,
     registerAgency,
@@ -44,7 +41,6 @@ export function LoginPage() {
   }, [isAuthenticated, user, navigate, targetRedirect])
 
   const handleTabChange = (tab: PageTab) => {
-    clearFeedback()
     setActiveTab(tab)
   }
 
@@ -93,7 +89,7 @@ export function LoginPage() {
               onClick={() => handleTabChange("register_agency")}
               className={`pb-2 text-sm font-semibold border-b-2 cursor-pointer transition-colors ${
                 activeTab === "register_agency"
-                  ? "border-[#084d6e] text-[#084d6e]"
+                  ? "border-primary text-primary"
                   : "border-transparent text-slate-500 hover:text-slate-800"
               }`}
             >
@@ -107,7 +103,6 @@ export function LoginPage() {
               <LoginForm
                 onSubmit={handleLoginSubmit}
                 isLoading={isLoading}
-                error={error}
                 onSwitchToRegisterBuyer={() => handleTabChange("register_buyer")}
                 onSwitchToRegisterAgency={() => handleTabChange("register_agency")}
               />
@@ -117,7 +112,6 @@ export function LoginPage() {
               <RegisterBuyerForm
                 onSubmit={handleRegisterBuyerSubmit}
                 isLoading={isLoading}
-                error={error}
                 onSwitchToLogin={() => handleTabChange("login")}
               />
             )}
@@ -126,8 +120,6 @@ export function LoginPage() {
               <RegisterAgencyForm
                 onSubmit={registerAgency}
                 isLoading={isLoading}
-                error={error}
-                successMessage={agencySuccessMessage}
                 onSwitchToLogin={() => handleTabChange("login")}
               />
             )}

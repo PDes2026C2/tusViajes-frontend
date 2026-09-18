@@ -54,6 +54,11 @@ describe("TravelPackageCard component", () => {
       departureTime: new Date("2026-10-17T14:00:00Z"),
       arrivalTime: new Date("2026-10-17T16:00:00Z"),
     },
+    agency: {
+      id: 1,
+      businessName: "TusViajes Premium",
+      taxId: "30-11223344-5",
+    },
   }
 
   it("renders the package information, flight details, and calculated nights", () => {

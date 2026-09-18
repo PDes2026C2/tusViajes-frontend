@@ -18,8 +18,6 @@ export function AuthModal() {
     registerBuyer,
     registerAgency,
     isLoading,
-    error,
-    agencySuccessMessage,
   } = useAuth()
 
   const getHeaderInfo = () => {
@@ -75,7 +73,6 @@ export function AuthModal() {
             <LoginForm
               onSubmit={login}
               isLoading={isLoading}
-              error={error}
               onSwitchToRegisterBuyer={() => modal.setMode("register_buyer")}
               onSwitchToRegisterAgency={() => modal.setMode("register_agency")}
             />
@@ -85,7 +82,6 @@ export function AuthModal() {
             <RegisterBuyerForm
               onSubmit={registerBuyer}
               isLoading={isLoading}
-              error={error}
               onSwitchToLogin={() => modal.setMode("login")}
             />
           )}
@@ -94,8 +90,6 @@ export function AuthModal() {
             <RegisterAgencyForm
               onSubmit={registerAgency}
               isLoading={isLoading}
-              error={error}
-              successMessage={agencySuccessMessage}
               onSwitchToLogin={() => modal.setMode("login")}
             />
           )}

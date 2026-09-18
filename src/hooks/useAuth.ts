@@ -1,14 +1,9 @@
-import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { toast } from "react-toastify"
 import type { LoginCredentials, RegisterAgencyData, RegisterBuyerData, User } from "../models/auth"
 import { useAuthStore } from "../stores/auth"
 import { useAuthModalStore, type AuthModalMode } from "../stores/authModal"
 import type { AgencyRegistrationResponseDTO } from "../types/auth"
-
-interface AuthFeedbackState {
-  error: string | null
-  agencySuccessMessage: string | null
-}
 
 export function useAuth() {
   const navigate = useNavigate()
@@ -32,18 +27,6 @@ export function useAuth() {
     setMode: setModalMode,
   } = useAuthModalStore()
 
-  const [feedback, setFeedback] = useState<AuthFeedbackState>({
-    error: null,
-    agencySuccessMessage: null,
-  })
-
-  const clearFeedback = () => {
-    setFeedback({
-      error: null,
-      agencySuccessMessage: null,
-    })
-  }
-
   const executeRoleRedirect = (currentUser: User, customRedirect?: string) => {
     switch (currentUser.role) {
       case "ADMIN":
@@ -63,11 +46,11 @@ export function useAuth() {
     credentials: LoginCredentials,
     customRedirect?: string
   ): Promise<boolean> => {
-    clearFeedback()
     try {
       await storeLogin(credentials)
       const loggedUser = useAuthStore.getState().user
       if (loggedUser) {
+        toast.success("¡Bienvenido! Sesión iniciada correctamente.")
         closeModal()
         executeRoleRedirect(loggedUser, customRedirect)
         return true
@@ -78,7 +61,7 @@ export function useAuth() {
         err instanceof Error
           ? err.message
           : "Error al iniciar sesión. Verifique sus credenciales."
-      setFeedback({ error: message, agencySuccessMessage: null })
+      toast.error(message)
       return false
     }
   }
@@ -87,11 +70,11 @@ export function useAuth() {
     data: RegisterBuyerData,
     customRedirect?: string
   ): Promise<boolean> => {
-    clearFeedback()
     try {
       await storeRegisterBuyer(data)
       const registeredUser = useAuthStore.getState().user
       if (registeredUser) {
+        toast.success("¡Cuenta creada con éxito! Bienvenido a TusViajes.")
         closeModal()
         executeRoleRedirect(registeredUser, customRedirect)
         return true
@@ -102,7 +85,7 @@ export function useAuth() {
         err instanceof Error
           ? err.message
           : "Error al registrarse como comprador."
-      setFeedback({ error: message, agencySuccessMessage: null })
+      toast.error(message)
       return false
     }
   }
@@ -110,29 +93,26 @@ export function useAuth() {
   const handleRegisterAgency = async (
     data: RegisterAgencyData
   ): Promise<AgencyRegistrationResponseDTO | undefined> => {
-    clearFeedback()
     try {
       const response = await storeRegisterAgency(data)
-      setFeedback({
-        error: null,
-        agencySuccessMessage:
-          response.message ||
-          "Tu postulación ha sido enviada con éxito. Un administrador revisará tu solicitud.",
-      })
+      toast.success(
+        response.message ||
+          "Tu postulación ha sido enviada con éxito. Un administrador revisará tu solicitud."
+      )
       return response
     } catch (err: unknown) {
       const message =
         err instanceof Error
           ? err.message
           : "Error al registrar la agencia."
-      setFeedback({ error: message, agencySuccessMessage: null })
+      toast.error(message)
       return undefined
     }
   }
 
   const handleLogout = () => {
-    clearFeedback()
     storeLogout()
+    toast.success("Sesion cerrada con éxito.")
     navigate("/home")
   }
 
@@ -142,26 +122,18 @@ export function useAuth() {
     isAuthenticated,
     isLoading,
 
-    // Feedback
-    error: feedback.error,
-    agencySuccessMessage: feedback.agencySuccessMessage,
-    clearFeedback,
-
     // Modal controls
     modal: {
       isOpen: isModalOpen,
       mode: modalMode,
       redirectPath: modalRedirectPath,
       open: (mode?: AuthModalMode, redirectPath?: string) => {
-        clearFeedback()
         openModal(mode, redirectPath)
       },
       close: () => {
-        clearFeedback()
         closeModal()
       },
       setMode: (mode: AuthModalMode) => {
-        clearFeedback()
         setModalMode(mode)
       },
     },
