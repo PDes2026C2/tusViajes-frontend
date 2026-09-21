@@ -1,9 +1,12 @@
+import type { AgencyStatus } from "./auth"
 import type { CityDTO } from "./location"
 
 export interface AgencyResponseDTO {
   id: number
   businessName: string
   taxId: string
+  email: string
+  status: AgencyStatus
 }
 
 export interface HotelResponseDTO {
