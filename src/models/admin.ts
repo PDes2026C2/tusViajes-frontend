@@ -1,4 +1,4 @@
-import type { AgencySellsDTO, BuyerResponseDTO, RatedCityDTO, TopBuyerDTO } from "../types/admin"
+import type { TopAgencyDTO, BuyerResponseDTO, TopRatedCityDTO, TopBuyerDTO } from "../types/admin"
 import type { CityDTO } from "../types/location"
 import { locationMappers, type City } from "./location"
 import { packageMappers, type SimpleAgency } from "./package"
@@ -59,13 +59,13 @@ export const metricsMapper = {
     rank: index + 1,
   }),
 
-  mapTopAgencyDTOToModel: (dto: AgencySellsDTO, index = 0): TopAgency => ({
+  mapTopAgencyDTOToModel: (dto: TopAgencyDTO, index = 0): TopAgency => ({
     agency: packageMappers.mapSimpleAgencyDTOToModel(dto.agency),
     sales: dto.salesCount,
     rank: index + 1,
   }),
 
-  mapTopRatedDestinationDTOToModel: (dto: RatedCityDTO, index = 0): TopRatedDestination => ({
+  mapTopRatedDestinationDTOToModel: (dto: TopRatedCityDTO, index = 0): TopRatedDestination => ({
     city: locationMappers.mapCityDTOToModel(dto.city),
     stars: dto.stars,
     rank: index + 1,

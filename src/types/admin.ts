@@ -16,7 +16,7 @@ export interface TopBuyerDTO {
   purchaseCount: number
 }
 
-export interface RatedCityDTO {
+export interface TopRatedCityDTO {
   city: CityDTO
   stars: number
 }
@@ -27,7 +27,7 @@ export interface SimpleAgencyDTO {
   email: string
 }
 
-export interface AgencySellsDTO {
+export interface TopAgencyDTO {
   agency: SimpleAgencyDTO
   salesCount: number
 }

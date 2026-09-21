@@ -1,3 +1,4 @@
+import type { AgencyStatus } from "@/types/auth"
 import type {
   AgencyResponseDTO,
   FlightDTO,
@@ -6,11 +7,20 @@ import type {
   TravelPackageResponseDTO,
 } from "../types/package"
 import { locationMappers, type City } from "./location"
+import type { SimpleAgencyDTO } from "@/types/admin"
 
 export interface Agency {
   id: number
   businessName: string
   taxId: string
+  email: string
+  status: AgencyStatus
+}
+
+export interface SimpleAgency {
+  id: number
+  businessName: string
+  email: string
 }
 
 export interface Hotel {
@@ -62,8 +72,16 @@ export const packageMappers = {
     id: dto.id,
     businessName: dto.businessName,
     taxId: dto.taxId,
+    email: dto.email,
+    status: dto.status
   }),
 
+  mapSimpleAgencyDTOToModel: (dto: SimpleAgencyDTO): SimpleAgency => ({
+    id: dto.id,
+    email: dto.email,
+    businessName: dto.businessName
+  }),
+  
   mapHotelDTOToModel: (dto: HotelResponseDTO): Hotel => ({
     id: dto.id,
     name: dto.name,
