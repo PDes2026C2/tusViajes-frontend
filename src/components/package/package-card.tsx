@@ -58,21 +58,12 @@ export function TravelPackageCard({
     <article className="w-full bg-white border border-slate-200 rounded-2xl shadow-xs hover:shadow-md transition-shadow overflow-hidden flex flex-col md:flex-row">
       {/* Hotel Image / Thumbnail */}
       <div className="md:w-60 h-48 md:h-auto shrink-0 relative bg-slate-100 flex items-center justify-center overflow-hidden">
-        {hotel.photoUrl ? (
-          <img
-            src={hotel.photoUrl}
-            alt={hotel.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        ) : (
-          <div className="flex flex-col items-center justify-center gap-2 p-6 text-slate-400">
-            <Building2 className="w-12 h-12 stroke-[1.5]" />
-            <span className="text-xs font-medium text-slate-500 text-center">
-              {hotel.name}
-            </span>
-          </div>
-        )}
+        <img
+          src={hotel.photoUrl}
+          alt={hotel.name}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
         <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-full text-xs font-semibold text-primary shadow-xs flex items-center gap-1.5">
           <Moon className="w-3.5 h-3.5 text-primary" />
           <span>{nights} {nights === 1 ? "noche" : "noches"}</span>
