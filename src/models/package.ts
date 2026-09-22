@@ -27,7 +27,7 @@ export interface Hotel {
   id: number
   name: string
   city: City
-  photoUrl?: string
+  photoUrl: string
 }
 
 export interface Flight {
@@ -73,7 +73,7 @@ export const packageMappers = {
     businessName: dto.businessName,
     taxId: dto.taxId,
     email: dto.email,
-    status: dto.status
+    status: dto.status,
   }),
 
   mapSimpleAgencyDTOToModel: (dto: SimpleAgencyDTO): SimpleAgency => ({

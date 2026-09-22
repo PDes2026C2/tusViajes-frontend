@@ -58,6 +58,8 @@ describe("TravelPackageCard component", () => {
       id: 1,
       businessName: "TusViajes Premium",
       taxId: "30-11223344-5",
+      email: "contacto@tusviajes.com",
+      status: "AUTHORIZED",
     },
   }
 

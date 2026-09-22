@@ -9,7 +9,6 @@ import {
   type TopRatedDestination,
 } from "./admin"
 import type {
-  AgencyResponseDTO,
   BuyerResponseDTO,
   TopRatedCityDTO,
   TopBuyerDTO,

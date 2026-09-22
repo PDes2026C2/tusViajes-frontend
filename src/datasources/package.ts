@@ -56,6 +56,8 @@ export const packageDataSource = {
               id: 1,
               businessName: "TusViajes Premium",
               taxId: "30-11223344-5",
+              email: "contacto@tusviajes.com",
+              status: "AUTHORIZED",
             },
             departureFlight: {
               id: 501,
@@ -111,6 +113,8 @@ export const packageDataSource = {
               id: 2,
               businessName: "Caribe & Sol",
               taxId: "30-99887766-4",
+              email: "info@caribesol.com",
+              status: "AUTHORIZED",
             },
             departureFlight: {
               id: 503,
@@ -166,6 +170,8 @@ export const packageDataSource = {
               id: 1,
               businessName: "TusViajes Premium",
               taxId: "30-11223344-5",
+              email: "contacto@tusviajes.com",
+              status: "AUTHORIZED",
             },
             departureFlight: {
               id: 505,

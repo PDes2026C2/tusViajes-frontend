@@ -13,7 +13,7 @@ export interface HotelResponseDTO {
   id: number
   name: string
   city: CityDTO
-  photoUrl?: string
+  photoUrl: string
 }
 
 export interface FlightDTO {
