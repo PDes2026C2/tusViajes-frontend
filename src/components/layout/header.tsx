@@ -16,13 +16,11 @@ export interface HeaderProps {
 }
 
 export function Header({
-    cartCount = 0,
     isAuthenticated = false,
     userEmail,
     userRole,
     onNavigateHome,
     onMyTripsClick,
-    onCartClick,
     onAgencyClick,
     onAdminClick,
     onLoginClick,
@@ -75,18 +73,6 @@ export function Header({
                     className="rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-medium px-4 sm:px-6 py-2 h-auto shadow-xs transition-all cursor-pointer"
                 >
                     Mis Viajes
-                </Button>
-
-                <Button
-                    type="button"
-                    onClick={onCartClick}
-                    variant="outline"
-                    className="rounded-full border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-medium px-4 sm:px-6 py-2 h-auto shadow-xs transition-all gap-2.5 cursor-pointer"
-                >
-                    <span> Carrito </span>
-                    <span className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                        {cartCount}
-                    </span>
                 </Button>
 
                 {isAuthenticated ? (

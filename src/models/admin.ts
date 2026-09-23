@@ -1,7 +1,16 @@
 import type { TopAgencyDTO, BuyerResponseDTO, TopRatedCityDTO, TopBuyerDTO } from "../types/admin"
+import type { AgencyStatus } from "../types/auth"
 import type { CityDTO } from "../types/location"
 import { locationMappers, type City } from "./location"
 import { packageMappers, type SimpleAgency } from "./package"
+
+export interface AdminAgency {
+  id: number
+  businessName: string
+  taxId: string
+  email: string
+  status: AgencyStatus
+}
 
 
 export interface Buyer {

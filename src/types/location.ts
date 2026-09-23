@@ -5,6 +5,7 @@ export interface CountryDTO {
 
 export interface CityDTO {
   id: number
-  countryDTO: CountryDTO
+  countryDTO?: CountryDTO
+  country?: CountryDTO
   name: string
 }

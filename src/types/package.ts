@@ -18,11 +18,14 @@ export interface HotelResponseDTO {
 
 export interface FlightDTO {
   id: number
-  flightNumber: string
+  flightNumber?: string
+  airline?: string
   originCity: CityDTO
   destinationCity: CityDTO
-  departureTime: string
-  arrivalTime: string
+  departureTime?: string
+  departureDate?: string
+  arrivalTime?: string
+  arrivalDate?: string
 }
 
 export interface TravelPackageResponseDTO {
@@ -30,8 +33,10 @@ export interface TravelPackageResponseDTO {
   name: string
   description: string
   price: number
-  initialDate: string
-  finalDate: string
+  startDate?: string
+  endDate?: string
+  initialDate?: string
+  finalDate?: string
   hotel: HotelResponseDTO
   departureFlight: FlightDTO
   arrivalFlight: FlightDTO
