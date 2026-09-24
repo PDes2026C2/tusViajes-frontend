@@ -32,7 +32,7 @@ export function AppRouter() {
 
                 {/*Rutas para Buyer */}
                 <Route element = {<ProtectedRoute allowedRoles={['BUYER']}/>}>
-                    <Route path="/cart" element = { <h1> ruta privada para buyer </h1> } />
+                    <Route path="/my-trips" element = { <h1> ruta privada para buyer </h1> } />
                 </Route>
 
                 {/*Rutas para Admin */}

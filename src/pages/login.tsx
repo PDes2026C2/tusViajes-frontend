@@ -24,7 +24,7 @@ export function LoginPage() {
     registerAgency,
   } = useAuth()
 
-  // Target path passed from ProtectedRoute (e.g., state="/cart")
+  // Target path passed from ProtectedRoute (e.g., state="/my-trips")
   const targetRedirect = (location.state as string) || "/home"
 
   // If already logged in, redirect immediately according to role

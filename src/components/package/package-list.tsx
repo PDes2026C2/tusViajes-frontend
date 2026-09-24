@@ -9,7 +9,6 @@ export interface PackageListProps {
   currentPage?: number
   totalPages?: number
   totalElements?: number
-  onAddToCart?: (pkg: TravelPackage) => void
   onViewDetails?: (pkg: TravelPackage) => void
   onPageChange?: (page: number) => void
 }
@@ -56,7 +55,6 @@ export function PackageList({
   currentPage = 0,
   totalPages = 0,
   totalElements = 0,
-  onAddToCart,
   onViewDetails,
   onPageChange,
 }: PackageListProps) {
@@ -101,7 +99,6 @@ export function PackageList({
             <TravelPackageCard
               key={pkg.id}
               packageData={pkg}
-              onAddToCart={onAddToCart}
               onViewDetails={onViewDetails}
             />
           ))}

@@ -28,8 +28,10 @@ export function AgencyFlightsView({
   isLoading,
   destinationCityId,
   originCityId,
+  onlyAvailable,
   onDestinationChange,
   onOriginChange,
+  onOnlyAvailableToggle,
   onUseFlightInPackage,
   onRefresh,
 }: AgencyFlightsViewProps) {
@@ -90,6 +92,22 @@ export function AgencyFlightsView({
             </select>
           </div>
 
+          {/* Solo Disponibles */}
+          <div className="flex items-center gap-2 pt-2 sm:pt-6">
+            <input
+              type="checkbox"
+              id="onlyAvailable"
+              checked={onlyAvailable}
+              onChange={onOnlyAvailableToggle}
+              className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+            />
+            <label
+              htmlFor="onlyAvailable"
+              className="text-xs font-medium text-slate-700 cursor-pointer select-none"
+            >
+              Solo con asientos disponibles
+            </label>
+          </div>
         </div>
 
         <div className="self-end lg:self-auto">

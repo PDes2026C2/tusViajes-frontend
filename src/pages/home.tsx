@@ -6,7 +6,7 @@ import { useSearch } from "@/hooks/useSearch"
 import type { TravelPackage } from "@/models/package"
 
 export function Home() {
-  const headerProps = useHeader({ cartCount: 0 })
+  const headerProps = useHeader()
   const {
     selectedOriginCountry,
     selectedOriginCity,
@@ -35,11 +35,6 @@ export function Home() {
     onChangePage,
     errors,
   } = useSearch()
-
-  const handleAddToCart = (pkg: TravelPackage) => {
-    // Handled in home orchestrator - preparing for cart integration
-    console.info("Agregando paquete al carrito:", pkg.name, pkg.id)
-  }
 
   const handleViewDetails = (pkg: TravelPackage) => {
     // Handled in home orchestrator - preparing for details modal/page navigation
@@ -96,7 +91,6 @@ export function Home() {
           currentPage={page}
           totalPages={totalPages}
           totalElements={totalElements}
-          onAddToCart={handleAddToCart}
           onViewDetails={handleViewDetails}
           onPageChange={onChangePage}
         />

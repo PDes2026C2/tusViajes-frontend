@@ -2,13 +2,11 @@ import type { Role } from "../../models/auth";
 import { Button } from "../ui/button";
 
 export interface HeaderProps {
-    cartCount?: number;
     isAuthenticated?: boolean;
     userEmail?: string;
     userRole?: Role;
     onNavigateHome?: () => void;
     onMyTripsClick?: () => void;
-    onCartClick?: () => void;
     onAgencyClick?: () => void;
     onAdminClick?: () => void;
     onLoginClick?: () => void;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { agencyMappers, type AgencyFlight } from "./agency"
+import { agencyMappers, isSameCalendarDay, type AgencyFlight } from "./agency"
 import type { AgencyFlightDTO, AgencySaleDTO } from "../types/agency"
 
 describe("agencyMappers", () => {
@@ -122,5 +122,58 @@ describe("agencyMappers", () => {
     expect(metrics.totalRevenue).toBe(3300)
     expect(metrics.totalSales).toBe(3)
     expect(metrics.uniqueClients).toBe(2)
+  })
+})
+
+describe("isSameCalendarDay", () => {
+  it("returns false if either parameter is undefined or null", () => {
+    // arrange
+    const validDate = "2026-10-15"
+
+    // act
+    const result1 = isSameCalendarDay(undefined, validDate)
+    const result2 = isSameCalendarDay(validDate, null)
+    const result3 = isSameCalendarDay(null, undefined)
+
+    // assert
+    expect(result1).toBe(false)
+    expect(result2).toBe(false)
+    expect(result3).toBe(false)
+  })
+
+  it("returns true for matching string dates with and without timestamps", () => {
+    // arrange
+    const dateWithoutTime = "2026-10-15"
+    const dateWithTime = "2026-10-15T18:30:00.000Z"
+
+    // act
+    const result = isSameCalendarDay(dateWithoutTime, dateWithTime)
+
+    // assert
+    expect(result).toBe(true)
+  })
+
+  it("returns true for matching Date instance and ISO string", () => {
+    // arrange
+    const dateObj = new Date(2026, 9, 15, 14, 0, 0)
+    const dateString = "2026-10-15"
+
+    // act
+    const result = isSameCalendarDay(dateObj, dateString)
+
+    // assert
+    expect(result).toBe(true)
+  })
+
+  it("returns false when calendar days are different", () => {
+    // arrange
+    const day1 = "2026-10-15"
+    const day2 = "2026-10-16"
+
+    // act
+    const result = isSameCalendarDay(day1, day2)
+
+    // assert
+    expect(result).toBe(false)
   })
 })

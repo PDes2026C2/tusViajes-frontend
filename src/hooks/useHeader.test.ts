@@ -62,13 +62,11 @@ describe("useHeader hook", () => {
     } as any)
   })
 
-  it("returns default state for unauthenticated visitor with specified cartCount", () => {
+  it("returns default state for unauthenticated visitor", () => {
     // arrange
-    const expectedCartCount = 3
-    const { result } = renderHook(() => useHeader({ cartCount: expectedCartCount }))
+    const { result } = renderHook(() => useHeader())
 
     // act & assert
-    expect(result.current.cartCount).toBe(expectedCartCount)
     expect(result.current.isAuthenticated).toBe(false)
     expect(result.current.userEmail).toBeUndefined()
     expect(result.current.userRole).toBeUndefined()
@@ -127,53 +125,6 @@ describe("useHeader hook", () => {
 
     // act
     result.current.onMyTripsClick()
-
-    // assert
-    expect(mockNavigate).toHaveBeenCalledWith(expectedRoute)
-    expect(mockOpenModal).not.toHaveBeenCalled()
-  })
-
-  it("opens login modal with /cart redirect when clicking Cart while unauthenticated", () => {
-    // arrange
-    const expectedModalMode = "login"
-    const expectedRedirect = "/cart"
-    const { result } = renderHook(() => useHeader())
-
-    // act
-    result.current.onCartClick()
-
-    // assert
-    expect(mockOpenModal).toHaveBeenCalledWith(expectedModalMode, expectedRedirect)
-    expect(mockNavigate).not.toHaveBeenCalled()
-  })
-
-  it("navigates to /cart when clicking Cart while authenticated", () => {
-    // arrange
-    const expectedRoute = "/cart"
-    vi.mocked(useAuth).mockReturnValue({
-      user: mockBuyerUser,
-      isAuthenticated: true,
-      isLoading: false,
-      error: null,
-      agencySuccessMessage: null,
-      clearFeedback: vi.fn(),
-      modal: {
-        isOpen: false,
-        mode: "login",
-        redirectPath: null,
-        open: mockOpenModal,
-        close: vi.fn(),
-        setMode: vi.fn(),
-      },
-      login: vi.fn(),
-      registerBuyer: vi.fn(),
-      registerAgency: vi.fn(),
-      logout: mockLogout,
-    } as any)
-    const { result } = renderHook(() => useHeader())
-
-    // act
-    result.current.onCartClick()
 
     // assert
     expect(mockNavigate).toHaveBeenCalledWith(expectedRoute)

@@ -78,18 +78,6 @@ describe("TravelPackageCard component", () => {
     expect(screen.getByText(/7 noches de estadía/)).toBeDefined()
   })
 
-  it("calls onAddToCart callback with packageData when Agregar al carrito is clicked", () => {
-    // arrange
-    const onAddToCart = vi.fn()
-    render(<TravelPackageCard packageData={mockPackage} onAddToCart={onAddToCart} />)
-    const cartButton = screen.getByRole("button", { name: /agregar al carrito/i })
-
-    // act
-    fireEvent.click(cartButton)
-
-    // assert
-    expect(onAddToCart).toHaveBeenCalledWith(mockPackage)
-  })
 
   it("calls onViewDetails callback with packageData when Ver detalle is clicked", () => {
     // arrange

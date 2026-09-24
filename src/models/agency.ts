@@ -109,6 +109,22 @@ export const formatLocalDateTime = (
   return `${dateStr}T${timeStr}`
 }
 
+export const isSameCalendarDay = (
+  d1?: Date | string | null,
+  d2?: Date | string | null
+): boolean => {
+  if (!d1 || !d2) return false
+  const toDateParts = (d: Date | string): string => {
+    if (typeof d === "string") {
+      if (d.includes("T")) return d.split("T")[0]
+      return d.slice(0, 10)
+    }
+    const pad = (n: number) => String(n).padStart(2, "0")
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+  }
+  return toDateParts(d1) === toDateParts(d2)
+}
+
 export const agencyMappers = {
   mapFlightDTOToModel: (dto: AgencyFlightDTO): AgencyFlight => {
     const prefix = dto.airline

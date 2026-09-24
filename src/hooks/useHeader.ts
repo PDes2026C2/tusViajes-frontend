@@ -2,12 +2,7 @@ import { useNavigate } from "react-router-dom"
 import { useAuth } from "./useAuth"
 import type { Role } from "../models/auth"
 
-export interface UseHeaderOptions {
-  cartCount?: number
-}
-
-export function useHeader(options: UseHeaderOptions = {}) {
-  const { cartCount = 0 } = options
+export function useHeader() {
   const navigate = useNavigate()
   const { user, isAuthenticated, modal, logout } = useAuth()
 
@@ -20,14 +15,6 @@ export function useHeader(options: UseHeaderOptions = {}) {
       modal.open("login", "/my-trips")
     } else {
       navigate("/my-trips")
-    }
-  }
-
-  const handleCartClick = () => {
-    if (!isAuthenticated) {
-      modal.open("login", "/cart")
-    } else {
-      navigate("/cart")
     }
   }
 
@@ -56,13 +43,11 @@ export function useHeader(options: UseHeaderOptions = {}) {
   }
 
   return {
-    cartCount,
     isAuthenticated,
     userEmail: user?.email,
     userRole: user?.role as Role | undefined,
     onNavigateHome: handleNavigateHome,
     onMyTripsClick: handleMyTripsClick,
-    onCartClick: handleCartClick,
     onAgencyClick: handleAgencyClick,
     onAdminClick: handleAdminClick,
     onLoginClick: handleLoginClick,
