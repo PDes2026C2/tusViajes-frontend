@@ -124,10 +124,10 @@ describe("Route Guards with useAuth", () => {
 
       // act
       render(
-        <MemoryRouter initialEntries={["/cart"]}>
+        <MemoryRouter initialEntries={["/my-trips"]}>
           <Routes>
             <Route element={<ProtectedRoute allowedRoles={["BUYER"]} />}>
-              <Route path="/cart" element={<div>Carrito Compras</div>} />
+              <Route path="/my-trips" element={<div>Mis Viajes</div>} />
             </Route>
             <Route path="/login" element={<div>Página de Login</div>} />
           </Routes>
@@ -135,7 +135,7 @@ describe("Route Guards with useAuth", () => {
       )
 
       // assert
-      expect(screen.queryByText("Carrito Compras")).toBeNull()
+      expect(screen.queryByText("Mis Viajes")).toBeNull()
       expect(screen.getByText("Página de Login")).toBeDefined()
     })
 

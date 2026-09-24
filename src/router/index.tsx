@@ -4,6 +4,7 @@ import ProtectedRoute from "./guards/protectedRoute";
 import Home from "../pages/home";
 import LoginPage from "../pages/login";
 import AdminPanelPage from "../pages/adminPanel";
+import AgencyPanelPage from "../pages/agencyPanel";
 import AuthModal from "../components/auth/AuthModal";
 
 export function AppRouter() {
@@ -31,7 +32,7 @@ export function AppRouter() {
 
                 {/*Rutas para Buyer */}
                 <Route element = {<ProtectedRoute allowedRoles={['BUYER']}/>}>
-                    <Route path="/cart" element = { <h1> ruta privada para buyer </h1> } />
+                    <Route path="/my-trips" element = { <h1> ruta privada para buyer </h1> } />
                 </Route>
 
                 {/*Rutas para Admin */}
@@ -41,7 +42,7 @@ export function AppRouter() {
 
                 {/* Rutas para Agencia */}
                 <Route element = {<ProtectedRoute allowedRoles={['AGENCY']}/>}>
-                    <Route path="/agency/panel" element = {<h1> ruta privada agencia </h1>} />
+                    <Route path="/agency/panel" element = {<AgencyPanelPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>

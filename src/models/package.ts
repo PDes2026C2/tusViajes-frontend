@@ -89,18 +89,34 @@ export const packageMappers = {
     photoUrl: dto.photoUrl,
   }),
 
-  mapFlightDTOToModel: (dto: FlightDTO): Flight => ({
-    id: dto.id,
-    flightNumber: dto.flightNumber,
-    originCity: locationMappers.mapCityDTOToModel(dto.originCity),
-    destinationCity: locationMappers.mapCityDTOToModel(dto.destinationCity),
-    departureTime: new Date(dto.departureTime),
-    arrivalTime: new Date(dto.arrivalTime),
-  }),
+  mapFlightDTOToModel: (dto: FlightDTO): Flight => {
+    const rawDep = dto.departureDate || dto.departureTime || ""
+    const rawArr = dto.arrivalDate || dto.arrivalTime || ""
+    const prefix = dto.airline
+      ? dto.airline
+          .split(" ")
+          .map((w) => w[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2)
+      : "FL"
+    const flightNumber = dto.flightNumber || (dto.airline ? `${prefix}-${dto.id}` : `FL-${dto.id}`)
+
+    return {
+      id: dto.id,
+      flightNumber,
+      originCity: locationMappers.mapCityDTOToModel(dto.originCity),
+      destinationCity: locationMappers.mapCityDTOToModel(dto.destinationCity),
+      departureTime: new Date(rawDep),
+      arrivalTime: new Date(rawArr),
+    }
+  },
 
   mapDTOToModel: (dto: TravelPackageResponseDTO): TravelPackage => {
-    const initialDate = new Date(dto.initialDate)
-    const finalDate = new Date(dto.finalDate)
+    const rawStart = dto.startDate || dto.initialDate || ""
+    const rawEnd = dto.endDate || dto.finalDate || ""
+    const initialDate = new Date(rawStart)
+    const finalDate = new Date(rawEnd)
     const nights = calculateNights(initialDate, finalDate)
 
     return {

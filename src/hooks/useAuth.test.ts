@@ -179,7 +179,7 @@ describe("useAuth hook", () => {
 
   it("redirects to custom target path when logging in as BUYER", async () => {
     // arrange
-    const targetRedirectPath = "/cart"
+    const targetRedirectPath = "/my-trips"
     mockLogin.mockImplementation(async () => {
       const state = {
         user: mockBuyerUser,

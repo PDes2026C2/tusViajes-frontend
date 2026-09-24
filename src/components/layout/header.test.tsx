@@ -17,21 +17,6 @@ describe("Header component", () => {
     expect(onNavigateHome).toHaveBeenCalledTimes(1)
   })
 
-  it("renders cart count and calls onCartClick when clicked", () => {
-    // arrange
-    const onCartClick = vi.fn()
-    const expectedCartCount = 4
-    render(<Header cartCount={expectedCartCount} onCartClick={onCartClick} />)
-    const cartButton = screen.getByRole("button", { name: /carrito/i })
-
-    // act
-    fireEvent.click(cartButton)
-
-    // assert
-    expect(screen.getByText(expectedCartCount.toString())).toBeDefined()
-    expect(onCartClick).toHaveBeenCalledTimes(1)
-  })
-
   it("calls onMyTripsClick when Mis Viajes is clicked", () => {
     // arrange
     const onMyTripsClick = vi.fn()

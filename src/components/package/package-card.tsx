@@ -5,14 +5,12 @@ import {
   Moon,
   PlaneLanding,
   PlaneTakeoff,
-  ShoppingCart,
 } from "lucide-react"
 import type { TravelPackage } from "../../models/package"
 import { Button } from "../ui/button"
 
 export interface TravelPackageCardProps {
   packageData: TravelPackage
-  onAddToCart?: (pkg: TravelPackage) => void
   onViewDetails?: (pkg: TravelPackage) => void
 }
 
@@ -34,7 +32,6 @@ function formatPrice(price: number): string {
 
 export function TravelPackageCard({
   packageData,
-  onAddToCart,
   onViewDetails,
 }: TravelPackageCardProps) {
   const {
@@ -162,25 +159,14 @@ export function TravelPackageCard({
         </div>
 
         <div className="flex flex-col gap-2 w-full">
-          {/* Boton principal: Primary */}
+          {/* Boton principal: Ver detalle */}
           <Button
             type="button"
-            onClick={() => onAddToCart?.(packageData)}
+            onClick={() => onViewDetails?.(packageData)}
             className="w-full rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold py-2.5 h-auto shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all"
           >
-            <ShoppingCart className="w-4 h-4" />
-            <span>Agregar al carrito</span>
-          </Button>
-
-          {/* Boton secundario: Invertido con estilo primary */}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onViewDetails?.(packageData)}
-            className="w-full rounded-xl border border-primary text-primary hover:bg-primary/10 hover:text-primary font-semibold py-2 h-auto shadow-none flex items-center justify-center gap-1.5 cursor-pointer transition-all"
-          >
             <span>Ver detalle</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
       </div>

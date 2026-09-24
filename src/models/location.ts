@@ -12,14 +12,14 @@ export interface City {
 }
 
 export const locationMappers = {
-  mapCountryDTOToModel: (dto: CountryDTO): Country => ({
-    isoCode: dto.isoCode,
-    name: dto.name,
+  mapCountryDTOToModel: (dto?: CountryDTO): Country => ({
+    isoCode: dto?.isoCode || "",
+    name: dto?.name || "",
   }),
 
   mapCityDTOToModel: (dto: CityDTO): City => ({
     id: dto.id,
-    country: locationMappers.mapCountryDTOToModel(dto.countryDTO),
+    country: locationMappers.mapCountryDTOToModel(dto.country || dto.countryDTO),
     name: dto.name,
   }),
 }
