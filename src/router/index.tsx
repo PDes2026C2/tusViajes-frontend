@@ -3,6 +3,7 @@ import PublicRoute from "./guards/publicRoute";
 import ProtectedRoute from "./guards/protectedRoute";
 import Home from "../pages/home";
 import LoginPage from "../pages/login";
+import AdminPanelPage from "../pages/adminPanel";
 import AuthModal from "../components/auth/AuthModal";
 
 export function AppRouter() {
@@ -35,7 +36,7 @@ export function AppRouter() {
 
                 {/*Rutas para Admin */}
                 <Route element = {<ProtectedRoute allowedRoles={['ADMIN']}/>}>
-                    <Route path="/admin/panel" element = { <h1> ruta privada admin </h1> }/>
+                    <Route path="/admin/panel" element = { <AdminPanelPage /> }/>
                 </Route>
 
                 {/* Rutas para Agencia */}

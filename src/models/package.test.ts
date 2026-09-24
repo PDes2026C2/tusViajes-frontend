@@ -27,6 +27,8 @@ describe("package models and mappers", () => {
       id: 5,
       businessName: "Viajes Patagonia SRL",
       taxId: "30-55667788-9",
+      email: "patagonia@viajes.com",
+      status: "AUTHORIZED",
     }
 
     // act
@@ -37,6 +39,8 @@ describe("package models and mappers", () => {
       id: 5,
       businessName: "Viajes Patagonia SRL",
       taxId: "30-55667788-9",
+      email: "patagonia@viajes.com",
+      status: "AUTHORIZED",
     })
   })
 
@@ -86,6 +90,8 @@ describe("package models and mappers", () => {
         id: 1,
         businessName: "TusViajes Premium",
         taxId: "30-11223344-5",
+        email: "premium@tusviajes.com",
+        status: "AUTHORIZED",
       },
       departureFlight: {
         id: 301,
@@ -132,7 +138,7 @@ describe("package models and mappers", () => {
     expect(model.finalDate).toEqual(new Date("2026-11-17T10:00:00Z"))
     expect(model.hotel.name).toBe("Resort del Caribe")
     expect(model.hotel.city.name).toBe("Cancún")
-    expect(model.agency?.businessName).toBe("TusViajes Premium")
+    expect(model.agency.businessName).toBe("TusViajes Premium")
     expect(model.departureFlight.flightNumber).toBe("MX-202")
     expect(model.departureFlight.originCity.name).toBe("Buenos Aires")
     expect(model.departureFlight.destinationCity.name).toBe("Cancún")
@@ -156,6 +162,7 @@ describe("package models and mappers", () => {
             id: 1,
             name: "Hotel Plaza Mayor",
             city: { id: 10, name: "Madrid", countryDTO: { isoCode: "ES", name: "España" } },
+            photoUrl: "https://example.com/madrid.jpg",
           },
           departureFlight: {
             id: 1,
@@ -177,6 +184,8 @@ describe("package models and mappers", () => {
             id: 1,
             businessName: "TusViajes Premium",
             taxId: "30-11223344-5",
+            email: "premium@tusviajes.com",
+            status: "AUTHORIZED",
           },
         },
       ],

@@ -17,6 +17,7 @@ describe("PackageList component", () => {
         id: 10,
         name: "Hotel Miami",
         city: { id: 6, name: "Miami", country: { isoCode: "US", name: "Estados Unidos" } },
+        photoUrl: "https://example.com/miami.jpg",
       },
       departureFlight: {
         id: 101,
@@ -38,6 +39,8 @@ describe("PackageList component", () => {
         id: 1,
         businessName: "TusViajes Premium",
         taxId: "30-11223344-5",
+        email: "premium@tusviajes.com",
+        status: "AUTHORIZED",
       },
     },
     {
@@ -52,6 +55,7 @@ describe("PackageList component", () => {
         id: 20,
         name: "Hotel Madrid",
         city: { id: 10, name: "Madrid", country: { isoCode: "ES", name: "España" } },
+        photoUrl: "https://example.com/madrid.jpg",
       },
       departureFlight: {
         id: 201,
@@ -73,6 +77,8 @@ describe("PackageList component", () => {
         id: 2,
         businessName: "Caribe & Sol",
         taxId: "30-99887766-4",
+        email: "info@caribesol.com",
+        status: "AUTHORIZED",
       },
     },
   ]
