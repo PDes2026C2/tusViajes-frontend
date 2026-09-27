@@ -1,0 +1,30 @@
+name: Branch Protection Rules
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  validate-branch-rules:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Detect source/target branches
+        run: |
+          echo "Target: ${{ github.base_ref }}"
+          echo "Source: ${{ github.head_ref }}"
+
+      - name: Enforce rules
+        run: |
+          TARGET="${{ github.base_ref }}"
+          SOURCE="${{ github.head_ref }}"
+
+          if [[ "$TARGET" == "main" ]]; then
+            if [[ ! "$SOURCE" =~ ^feature/ && ! "$SOURCE" =~ ^security/  && ! "$SOURCE" =~ ^fix/ && ! "$SOURCE" =~ ^chore/ ]]; then
+              echo "❌ Solo se permiten PRs hacia main desde ramas feature/*, security/*, fix/* o chore/*"
+              exit 1
+            fi
+            echo "✅ PR válido hacia main"
+          fi
