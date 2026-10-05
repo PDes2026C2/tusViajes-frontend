@@ -195,10 +195,10 @@ export const useAgencyStore = create<AgencyStoreState>((set) => ({
     }
   },
 
-  fetchSales: async (agencyId?: number) => {
+  fetchSales: async (_agencyId?: number) => {
     set({ isLoadingSales: true, error: null })
     try {
-      const dtos = await agencyDataSource.getSales(agencyId)
+      const dtos = await agencyDataSource.getSales()
       const sales = dtos.map(agencyMappers.mapSaleDTOToModel)
       const metrics = agencyMappers.calculateMetrics(sales)
       set({ sales, metrics, isLoadingSales: false })

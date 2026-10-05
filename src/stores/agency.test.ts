@@ -226,4 +226,45 @@ describe("useAgencyStore", () => {
       uniqueClients: 1,
     })
   })
+
+  it("fetches sales with backend format (buyer object and nested hotel) and maps correctly", async () => {
+    // arrange
+    const backendSaleDTO: AgencySaleDTO = {
+      id: 2002,
+      buyer: {
+        id: 42,
+        firstName: "Carlos",
+        lastName: "Gómez",
+        email: "carlos@example.com",
+        nationalId: "42000000",
+      },
+      price: 2400,
+      purchasedAt: "2026-10-02T15:00:00.000Z",
+      travelPackage: {
+        id: 55,
+        name: "Cataratas del Iguazú",
+        startDate: "2026-11-15T09:00:00.000Z",
+        endDate: "2026-11-20T21:00:00.000Z",
+        hotel: {
+          id: 12,
+          name: "Iguazú Grand Resort",
+          city: { id: 3, countryDTO: { isoCode: "AR", name: "Argentina" }, name: "Puerto Iguazú" },
+          photoUrl: "",
+        },
+      } as any,
+    }
+    vi.mocked(agencyDataSource.getSales).mockResolvedValue([backendSaleDTO])
+
+    // act
+    await useAgencyStore.getState().fetchSales()
+
+    // assert
+    const { sales, metrics } = useAgencyStore.getState()
+    expect(sales).toHaveLength(1)
+    expect(sales[0].buyer.fullName).toBe("Carlos Gómez")
+    expect(sales[0].travelPackage.hotelName).toBe("Iguazú Grand Resort")
+    expect(sales[0].travelPackage.destinationCityName).toBe("Puerto Iguazú")
+    expect(metrics.totalRevenue).toBe(2400)
+    expect(metrics.uniqueClients).toBe(1)
+  })
 })

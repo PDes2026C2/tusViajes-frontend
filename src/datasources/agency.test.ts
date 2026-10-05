@@ -38,7 +38,15 @@ describe("agencyDataSource - Flights", () => {
 
   it("searchFlights calls GET /flights with query parameters and returns data", async () => {
     // arrange
-    vi.mocked(apiClient.get).mockResolvedValue({ data: [mockFlightDTO] })
+    vi.mocked(apiClient.get).mockResolvedValue({
+      data: {
+        content: [mockFlightDTO],
+        totalElements: 1,
+        totalPages: 1,
+        size: 10,
+        number: 0,
+      },
+    })
 
     // act
     const result = await agencyDataSource.searchFlights({
@@ -68,7 +76,15 @@ describe("agencyDataSource - Flights", () => {
 
   it("searchFlights calls GET /flights with empty params when filter is omitted", async () => {
     // arrange
-    vi.mocked(apiClient.get).mockResolvedValue({ data: [] })
+    vi.mocked(apiClient.get).mockResolvedValue({
+      data: {
+        content: [],
+        totalElements: 0,
+        totalPages: 0,
+        size: 10,
+        number: 0,
+      },
+    })
 
     // act
     const result = await agencyDataSource.searchFlights()
@@ -92,3 +108,64 @@ describe("agencyDataSource - Flights", () => {
     expect(result).toEqual(mockFlightDTO)
   })
 })
+
+describe("agencyDataSource - Sales", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("getSales calls GET /agencies/me/sales with pagination and returns content", async () => {
+    // arrange
+    const mockSale = {
+      id: 101,
+      price: 1500,
+      purchasedAt: "2026-10-01T10:00:00Z",
+      buyer: {
+        id: 1,
+        firstName: "Lucía",
+        lastName: "García",
+        email: "lucia@gmail.com",
+        nationalId: "38992110",
+      },
+      travelPackage: {
+        id: 10,
+        name: "Escapada a Miami",
+        hotel: { name: "Grand Hotel", city: { name: "Miami" } },
+        startDate: "2026-11-01T00:00:00Z",
+        endDate: "2026-11-08T00:00:00Z",
+      },
+    }
+    vi.mocked(apiClient.get).mockResolvedValue({
+      data: {
+        content: [mockSale],
+        totalElements: 1,
+      },
+    })
+
+    // act
+    const result = await agencyDataSource.getSales(0, 50)
+
+    // assert
+    expect(apiClient.get).toHaveBeenCalledWith("/agencies/me/sales", {
+      params: { page: 0, size: 50 },
+    })
+    expect(result).toEqual([mockSale])
+  })
+
+  it("getSales defaults to page 0 and size 100 and returns empty array on empty content", async () => {
+    // arrange
+    vi.mocked(apiClient.get).mockResolvedValue({
+      data: { content: [] },
+    })
+
+    // act
+    const result = await agencyDataSource.getSales()
+
+    // assert
+    expect(apiClient.get).toHaveBeenCalledWith("/agencies/me/sales", {
+      params: { page: 0, size: 100 },
+    })
+    expect(result).toEqual([])
+  })
+})
+

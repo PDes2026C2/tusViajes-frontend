@@ -134,7 +134,8 @@ export function useAgency() {
         s.buyer.email.toLowerCase().includes(trimmed) ||
         s.buyer.nationalId.toLowerCase().includes(trimmed) ||
         s.travelPackage.name.toLowerCase().includes(trimmed) ||
-        s.travelPackage.destinationCityName.toLowerCase().includes(trimmed)
+        s.travelPackage.destinationCityName.toLowerCase().includes(trimmed) ||
+        s.travelPackage.hotelName.toLowerCase().includes(trimmed)
     )
   }, [sales, uiState.salesSearchQuery])
 
