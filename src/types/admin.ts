@@ -16,6 +16,11 @@ export interface TopBuyerDTO {
   purchaseCount: number
 }
 
+export interface TopDestinationDTO {
+  city: CityDTO
+  salesCount: number
+}
+
 export interface TopRatedCityDTO {
   city: CityDTO
   stars: number

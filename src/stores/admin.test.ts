@@ -7,6 +7,7 @@ import type {
   BuyerResponseDTO,
   TopRatedCityDTO,
   TopBuyerDTO,
+  TopDestinationDTO,
 } from "../types/admin"
 import type {
   Buyer,
@@ -15,7 +16,6 @@ import type {
   TopDestination,
   TopRatedDestination,
 } from "../models/admin"
-import type { CityDTO } from "../types/location"
 import type { Agency } from "@/models/package"
 
 vi.mock("../datasources/admin", () => ({
@@ -214,11 +214,14 @@ describe("useAdminStore", () => {
 
   it("fetchTopRankedDestinations loads top destinations correctly", async () => {
     // arrange
-    const dtos: CityDTO[] = [
+    const dtos: TopDestinationDTO[] = [
       {
-        id: 50,
-        name: "Bariloche",
-        countryDTO: { isoCode: "AR", name: "Argentina" },
+        city: {
+          id: 50,
+          name: "Bariloche",
+          countryDTO: { isoCode: "AR", name: "Argentina" },
+        },
+        salesCount: 8,
       },
     ]
     const expectedTopDestinations: TopDestination[] = [
@@ -226,9 +229,10 @@ describe("useAdminStore", () => {
         city: {
           id: 50,
           name: "Bariloche",
-          country: {isoCode: "AR", name: "Argentina"}
+          country: { isoCode: "AR", name: "Argentina" },
         },
         rank: 1,
+        sales: 8,
       },
     ]
     vi.mocked(adminAgencyDataSource.getTopRankedDestinations).mockResolvedValue(dtos)

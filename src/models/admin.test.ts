@@ -13,8 +13,8 @@ import type {
   TopRatedCityDTO,
   TopBuyerDTO,
   TopAgencyDTO,
+  TopDestinationDTO,
 } from "../types/admin"
-import type { CityDTO } from "../types/location"
 
 describe("buyerMappers", () => {
   it("maps BuyerResponseDTO to Buyer domain model", () => {
@@ -78,15 +78,18 @@ describe("metricsMapper", () => {
     expect(result).toEqual(expectedModel)
   })
 
-  it("maps CityDTO to TopDestination domain model", () => {
+  it("maps TopDestinationDTO with city and salesCount to TopDestination domain model", () => {
     // arrange
-    const dto: CityDTO = {
-      id: 101,
-      name: "Bariloche",
-      countryDTO: {
-        isoCode: "AR",
-        name: "Argentina",
+    const dto: TopDestinationDTO = {
+      city: {
+        id: 101,
+        name: "Bariloche",
+        countryDTO: {
+          isoCode: "AR",
+          name: "Argentina",
+        },
       },
+      salesCount: 15,
     }
     const expectedModel: TopDestination = {
       city: {
@@ -94,14 +97,15 @@ describe("metricsMapper", () => {
         name: "Bariloche",
         country: {
           isoCode: "AR",
-          name: "Argentina"
-        }
+          name: "Argentina",
+        },
       },
-      rank: 2,
+      sales: 15,
+      rank: 1,
     }
 
     // act
-    const result = metricsMapper.mapTopDestinationDTOToModel(dto, 1)
+    const result = metricsMapper.mapTopDestinationDTOToModel(dto, 0)
 
     // assert
     expect(result).toEqual(expectedModel)

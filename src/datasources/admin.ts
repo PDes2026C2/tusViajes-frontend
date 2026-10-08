@@ -5,8 +5,8 @@ import type {
   BuyerResponseDTO,
   TopRatedCityDTO,
   TopBuyerDTO,
+  TopDestinationDTO,
 } from "../types/admin"
-import type { CityDTO } from "../types/location"
 
 export const adminAgencyDataSource = {
   async getPendingAgencies(): Promise<AgencyResponseDTO[]> {
@@ -39,8 +39,8 @@ export const adminAgencyDataSource = {
     return response.data
   },
 
-  async getTopRankedDestinations(): Promise<CityDTO[]> {
-    const response = await apiClient.get<CityDTO[]>("/admin/metrics/top-destinations")
+  async getTopRankedDestinations(): Promise<TopDestinationDTO[]> {
+    const response = await apiClient.get<TopDestinationDTO[]>("/admin/metrics/top-destinations")
     return response.data
   },
 

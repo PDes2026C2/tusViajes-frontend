@@ -127,4 +127,38 @@ describe("AdminMetricsView component", () => {
     // assert
     expect(mockOnRefresh).toHaveBeenCalled()
   })
+
+  it("renders top ranked destination city name, country and sales badge", () => {
+    // arrange
+    const destinationsWithSales: TopDestination[] = [
+      {
+        city: {
+          id: 15,
+          name: "Mendoza",
+          country: {
+            isoCode: "AR",
+            name: "Argentina",
+          },
+        },
+        rank: 1,
+        sales: 23,
+      },
+    ]
+
+    // act
+    render(
+      <AdminMetricsView
+        topBuyers={[]}
+        topRankedDestinations={destinationsWithSales}
+        topAgencies={[]}
+        topRatedDestinations={[]}
+        isLoading={false}
+      />
+    )
+
+    // assert
+    expect(screen.getByText("Mendoza")).toBeDefined()
+    expect(screen.getByText("Argentina")).toBeDefined()
+    expect(screen.getByText("23 ventas")).toBeDefined()
+  })
 })
