@@ -11,6 +11,11 @@ export interface PackageListProps {
   totalElements?: number
   onViewDetails?: (pkg: TravelPackage) => void
   onPageChange?: (page: number) => void
+  favoriteIds?: number[]
+  pendingFavoriteIds?: number[]
+  isLoadingFavorites?: boolean
+  canAddFavorite?: boolean
+  onAddFavorite?: (pkg: TravelPackage) => void
 }
 
 function PackageListSkeleton() {
@@ -57,6 +62,11 @@ export function PackageList({
   totalElements = 0,
   onViewDetails,
   onPageChange,
+  favoriteIds = [],
+  pendingFavoriteIds = [],
+  isLoadingFavorites = false,
+  canAddFavorite = false,
+  onAddFavorite,
 }: PackageListProps) {
   return (
     <section className="w-full mt-8 text-left" aria-label="Listado de paquetes">
@@ -100,6 +110,11 @@ export function PackageList({
               key={pkg.id}
               packageData={pkg}
               onViewDetails={onViewDetails}
+              isFavorite={favoriteIds.includes(pkg.id)}
+              isAddingFavorite={pendingFavoriteIds.includes(pkg.id)}
+              isLoadingFavorites={isLoadingFavorites}
+              canAddFavorite={canAddFavorite}
+              onAddFavorite={onAddFavorite}
             />
           ))}
 

@@ -91,4 +91,72 @@ describe("TravelPackageCard component", () => {
     // assert
     expect(onViewDetails).toHaveBeenCalledWith(mockPackage)
   })
+
+  it("adds the displayed package when the favorite button is clicked", () => {
+    // arrange
+    const onAddFavorite = vi.fn()
+    render(<TravelPackageCard packageData={mockPackage} canAddFavorite onAddFavorite={onAddFavorite} />)
+    const favoriteButton = screen.getByRole("button", { name: `Agregar a favoritos: ${mockPackage.name}` })
+
+    // act
+    fireEvent.click(favoriteButton)
+
+    // assert
+    expect(onAddFavorite).toHaveBeenCalledWith(mockPackage)
+    expect(favoriteButton).toHaveAttribute("aria-pressed", "false")
+  })
+
+  it("shows an existing favorite as pressed and prevents adding it again", () => {
+    // arrange
+    const onAddFavorite = vi.fn()
+    render(<TravelPackageCard packageData={mockPackage} canAddFavorite isFavorite onAddFavorite={onAddFavorite} />)
+    const favoriteButton = screen.getByRole("button", { name: `Guardado en favoritos: ${mockPackage.name}` })
+
+    // act
+    fireEvent.click(favoriteButton)
+
+    // assert
+    expect(favoriteButton).toHaveAttribute("aria-pressed", "true")
+    expect(favoriteButton).toBeDisabled()
+    expect(screen.getByText("En favoritos")).toBeInTheDocument()
+    expect(onAddFavorite).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    { isAddingFavorite: true, isLoadingFavorites: false, label: "Guardando..." },
+    { isAddingFavorite: false, isLoadingFavorites: true, label: "Cargando favoritos..." },
+  ])("disables the favorite action while $label", ({ isAddingFavorite, isLoadingFavorites, label }) => {
+    // arrange
+    const onAddFavorite = vi.fn()
+    render(
+      <TravelPackageCard
+        packageData={mockPackage}
+        canAddFavorite
+        isAddingFavorite={isAddingFavorite}
+        isLoadingFavorites={isLoadingFavorites}
+        onAddFavorite={onAddFavorite}
+      />
+    )
+    const favoriteButton = screen.getByRole("button", { name: /agregar a favoritos/i })
+
+    // act
+    fireEvent.click(favoriteButton)
+
+    // assert
+    expect(favoriteButton).toBeDisabled()
+    expect(favoriteButton).toHaveAttribute("aria-busy", "true")
+    expect(screen.getByText(label)).toBeInTheDocument()
+    expect(onAddFavorite).not.toHaveBeenCalled()
+  })
+
+  it("hides the favorite action when it is unavailable for the user's role", () => {
+    // arrange
+    const onAddFavorite = vi.fn()
+
+    // act
+    render(<TravelPackageCard packageData={mockPackage} canAddFavorite={false} onAddFavorite={onAddFavorite} />)
+
+    // assert
+    expect(screen.queryByRole("button", { name: /favoritos/i })).not.toBeInTheDocument()
+  })
 })
