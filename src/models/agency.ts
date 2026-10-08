@@ -151,27 +151,51 @@ export const agencyMappers = {
     }
   },
 
-  mapSaleDTOToModel: (dto: AgencySaleDTO): AgencySale => ({
-    id: dto.id,
-    buyer: {
-      id: dto.buyer.id,
-      firstName: dto.buyer.firstName,
-      lastName: dto.buyer.lastName,
-      fullName: `${dto.buyer.firstName} ${dto.buyer.lastName}`.trim(),
-      email: dto.buyer.email,
-      nationalId: dto.buyer.nationalId,
-    },
-    travelPackage: {
-      id: dto.travelPackage.id,
-      name: dto.travelPackage.name,
-      hotelName: dto.travelPackage.hotelName,
-      destinationCityName: dto.travelPackage.destinationCityName,
-      initialDate: new Date(dto.travelPackage.initialDate),
-      finalDate: new Date(dto.travelPackage.finalDate),
-    },
-    price: dto.price,
-    purchasedAt: new Date(dto.purchasedAt),
-  }),
+  mapSaleDTOToModel: (dto: AgencySaleDTO): AgencySale => {
+    const tp = dto.travelPackage as any
+    const hotelName = tp.hotelName || tp.hotel?.name || "Hotel asignado"
+    const destinationCityName =
+      tp.destinationCityName ||
+      tp.hotel?.city?.name ||
+      tp.departureFlight?.destinationCity?.name ||
+      ""
+    const rawInitialDate =
+      tp.initialDate || tp.startDate || new Date().toISOString()
+    const rawFinalDate =
+      tp.finalDate || tp.endDate || new Date().toISOString()
+
+    const buyerId = dto.buyer?.id ?? 0
+    const firstName = dto.buyer?.firstName || ""
+    const lastName = dto.buyer?.lastName || ""
+    const fullName =
+      firstName || lastName
+        ? `${firstName} ${lastName}`.trim()
+        : `Cliente #${buyerId}`
+    const email = dto.buyer?.email || (buyerId ? `ID: ${buyerId}` : "")
+    const nationalId = dto.buyer?.nationalId || "-"
+
+    return {
+      id: dto.id,
+      buyer: {
+        id: buyerId,
+        firstName,
+        lastName,
+        fullName,
+        email,
+        nationalId,
+      },
+      travelPackage: {
+        id: tp.id,
+        name: tp.name || "Paquete de viaje",
+        hotelName,
+        destinationCityName,
+        initialDate: new Date(rawInitialDate),
+        finalDate: new Date(rawFinalDate),
+      },
+      price: dto.price,
+      purchasedAt: new Date(dto.purchasedAt),
+    }
+  },
 
   mapHotelOptionDTOToModel: (dto: HotelOptionDTO): Hotel => ({
     id: dto.id,
@@ -197,11 +221,17 @@ export const agencyMappers = {
 
   calculateMetrics: (sales: AgencySale[]): AgencyMetricsSummary => {
     const totalRevenue = sales.reduce((acc, curr) => acc + curr.price, 0)
-    const uniqueClientEmails = new Set(sales.map((s) => s.buyer.email))
+    const uniqueClientKeys = new Set(
+      sales.map((s) =>
+        s.buyer.nationalId && s.buyer.nationalId !== "-"
+          ? s.buyer.nationalId
+          : s.buyer.id
+      )
+    )
     return {
       totalRevenue,
       totalSales: sales.length,
-      uniqueClients: uniqueClientEmails.size,
+      uniqueClients: uniqueClientKeys.size,
     }
   },
 }
