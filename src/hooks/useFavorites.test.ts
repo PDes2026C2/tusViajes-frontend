@@ -57,7 +57,7 @@ describe("useFavorites", () => {
     authState = { ...authState, user: buyer, isAuthenticated: true }
     favoritesState = { ...favoritesState, buyerId: buyer.id, favoriteIds: [101], pendingPackageIds: [102] }
     const expectedState = {
-      favoriteIds: [101], pendingFavoriteIds: [102], isLoadingFavorites: false, canAddFavorite: true,
+      favoriteIds: [101], pendingFavoriteIds: [102], canAddFavorite: true,
     }
 
     // act
@@ -162,7 +162,6 @@ describe("useFavorites", () => {
 
     // assert
     expect(result.current.favoriteIds).toEqual([])
-    expect(result.current.isLoadingFavorites).toBe(true)
   })
 
   it("clears pending work on unmount", () => {

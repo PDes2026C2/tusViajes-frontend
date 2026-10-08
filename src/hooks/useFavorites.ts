@@ -6,7 +6,7 @@ import { useAuth } from "./useAuth"
 
 export function useFavorites() {
   const { user, isAuthenticated, modal } = useAuth()
-  const { buyerId, favoriteIds, pendingPackageIds, isLoading, reset, fetchFavorites, addFavorite } = useFavoritesStore()
+  const { buyerId, favoriteIds, pendingPackageIds, reset, fetchFavorites, addFavorite } = useFavoritesStore()
   const currentBuyerId = isAuthenticated && user?.role === "BUYER" ? user.id : null
 
   useEffect(() => {
@@ -48,7 +48,6 @@ export function useFavorites() {
   return {
     favoriteIds: belongsToCurrentBuyer ? favoriteIds : [],
     pendingFavoriteIds: belongsToCurrentBuyer ? pendingPackageIds : [],
-    isLoadingFavorites: currentBuyerId !== null && (!belongsToCurrentBuyer || isLoading),
     canAddFavorite: !isAuthenticated || user?.role === "BUYER",
     onAddFavorite: handleAddFavorite,
   }

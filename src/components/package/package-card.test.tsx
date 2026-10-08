@@ -122,18 +122,14 @@ describe("TravelPackageCard component", () => {
     expect(onAddFavorite).not.toHaveBeenCalled()
   })
 
-  it.each([
-    { isAddingFavorite: true, isLoadingFavorites: false, label: "Guardando..." },
-    { isAddingFavorite: false, isLoadingFavorites: true, label: "Cargando favoritos..." },
-  ])("disables the favorite action while $label", ({ isAddingFavorite, isLoadingFavorites, label }) => {
+  it("disables the favorite action while saving the package", () => {
     // arrange
     const onAddFavorite = vi.fn()
     render(
       <TravelPackageCard
         packageData={mockPackage}
         canAddFavorite
-        isAddingFavorite={isAddingFavorite}
-        isLoadingFavorites={isLoadingFavorites}
+        isAddingFavorite
         onAddFavorite={onAddFavorite}
       />
     )
@@ -145,7 +141,7 @@ describe("TravelPackageCard component", () => {
     // assert
     expect(favoriteButton).toBeDisabled()
     expect(favoriteButton).toHaveAttribute("aria-busy", "true")
-    expect(screen.getByText(label)).toBeInTheDocument()
+    expect(screen.getByText("Guardando...")).toBeInTheDocument()
     expect(onAddFavorite).not.toHaveBeenCalled()
   })
 

@@ -107,21 +107,37 @@ describe("useFavoritesStore", () => {
     })
   })
 
-  it("does not save while initial favorites are loading", async () => {
+  it.each(["load first", "save first"])("preserves favorites when loading and saving overlap: %s", async (completionOrder) => {
     // arrange
     const loadingRequest = deferred<TravelPackageResponseDTO[]>()
+    const savingRequest = deferred<void>()
+    const expectedState = {
+      buyerId: 7, favoriteIds: [101, 102], pendingPackageIds: [], isLoading: false,
+    }
     vi.mocked(favoritesDataSource.getFavorites).mockReturnValue(loadingRequest.promise)
+    vi.mocked(favoritesDataSource.addFavorite).mockReturnValue(savingRequest.promise)
 
     // act
     const loading = useFavoritesStore.getState().fetchFavorites()
-    const saved = await useFavoritesStore.getState().addFavorite(101)
-    loadingRequest.resolve([favoritePackageDTO])
-    await loading
+    const saving = useFavoritesStore.getState().addFavorite(102)
+    if (completionOrder === "load first") {
+      loadingRequest.resolve([favoritePackageDTO])
+      await loading
+      savingRequest.resolve()
+    } else {
+      savingRequest.resolve()
+      await saving
+      loadingRequest.resolve([favoritePackageDTO])
+    }
+    const [saved] = await Promise.all([saving, loading])
 
     // assert
-    expect(saved).toBe(false)
-    expect(favoritesDataSource.addFavorite).not.toHaveBeenCalled()
-    expect(useFavoritesStore.getState().favoriteIds).toEqual([101])
+    expect(saved).toBe(true)
+    expect(favoritesDataSource.addFavorite).toHaveBeenCalledWith(102)
+    expect(useFavoritesStore.getState()).toMatchObject({
+      ...expectedState, favoriteIds: expect.arrayContaining(expectedState.favoriteIds),
+    })
+    expect(useFavoritesStore.getState().favoriteIds).toHaveLength(expectedState.favoriteIds.length)
   })
 
   it("surfaces load errors and clears the loading indicator", async () => {

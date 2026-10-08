@@ -13,7 +13,6 @@ export interface PackageListProps {
   onPageChange?: (page: number) => void
   favoriteIds?: number[]
   pendingFavoriteIds?: number[]
-  isLoadingFavorites?: boolean
   canAddFavorite?: boolean
   onAddFavorite?: (pkg: TravelPackage) => void
 }
@@ -64,7 +63,6 @@ export function PackageList({
   onPageChange,
   favoriteIds = [],
   pendingFavoriteIds = [],
-  isLoadingFavorites = false,
   canAddFavorite = false,
   onAddFavorite,
 }: PackageListProps) {
@@ -112,7 +110,6 @@ export function PackageList({
               onViewDetails={onViewDetails}
               isFavorite={favoriteIds.includes(pkg.id)}
               isAddingFavorite={pendingFavoriteIds.includes(pkg.id)}
-              isLoadingFavorites={isLoadingFavorites}
               canAddFavorite={canAddFavorite}
               onAddFavorite={onAddFavorite}
             />

@@ -16,7 +16,6 @@ export interface TravelPackageCardProps {
   onViewDetails?: (pkg: TravelPackage) => void
   isFavorite?: boolean
   isAddingFavorite?: boolean
-  isLoadingFavorites?: boolean
   canAddFavorite?: boolean
   onAddFavorite?: (pkg: TravelPackage) => void
 }
@@ -42,7 +41,6 @@ export function TravelPackageCard({
   onViewDetails,
   isFavorite = false,
   isAddingFavorite = false,
-  isLoadingFavorites = false,
   canAddFavorite = false,
   onAddFavorite,
 }: TravelPackageCardProps) {
@@ -177,17 +175,17 @@ export function TravelPackageCard({
               variant="outline"
               aria-label={isFavorite ? `Guardado en favoritos: ${name}` : `Agregar a favoritos: ${name}`}
               aria-pressed={isFavorite}
-              aria-busy={isAddingFavorite || isLoadingFavorites}
-              disabled={isFavorite || isAddingFavorite || isLoadingFavorites}
+              aria-busy={isAddingFavorite}
+              disabled={isFavorite || isAddingFavorite}
               onClick={() => onAddFavorite(packageData)}
               className="w-full rounded-xl border-primary/20 text-primary font-semibold py-2.5 h-auto"
             >
-              {isAddingFavorite || isLoadingFavorites ? (
+              {isAddingFavorite ? (
                 <LoaderCircle className="w-4 h-4 animate-spin" aria-hidden="true" />
               ) : (
                 <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} aria-hidden="true" />
               )}
-              <span>{isFavorite ? "En favoritos" : isAddingFavorite ? "Guardando..." : isLoadingFavorites ? "Cargando favoritos..." : "Agregar a favoritos"}</span>
+              <span>{isFavorite ? "En favoritos" : isAddingFavorite ? "Guardando..." : "Agregar a favoritos"}</span>
             </Button>
           )}
           {/* Boton principal: Ver detalle */}

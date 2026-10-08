@@ -48,7 +48,6 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => {
       const state = get()
       if (
         state.buyerId === null ||
-        state.isLoading ||
         state.favoriteIds.includes(packageId) ||
         state.pendingPackageIds.includes(packageId)
       ) return false
