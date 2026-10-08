@@ -7,8 +7,8 @@ import type {
   TopRatedCityDTO,
   TopBuyerDTO,
   TopAgencyDTO,
+  TopDestinationDTO,
 } from "../types/admin"
-import type { CityDTO } from "../types/location"
 
 vi.mock("./api-client", () => ({
   default: {
@@ -151,11 +151,14 @@ describe("adminAgencyDataSource", () => {
 
   it("getTopRankedDestinations calls GET /admin/metrics/top-destinations and returns DTOs", async () => {
     // arrange
-    const mockDTOs: CityDTO[] = [
+    const mockDTOs: TopDestinationDTO[] = [
       {
-        id: 1,
-        name: "Cancún",
-        countryDTO: { isoCode: "MX", name: "México" },
+        city: {
+          id: 1,
+          name: "Cancún",
+          countryDTO: { isoCode: "MX", name: "México" },
+        },
+        salesCount: 15,
       },
     ]
     vi.mocked(apiClient.get).mockResolvedValue({ data: mockDTOs })

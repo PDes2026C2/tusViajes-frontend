@@ -192,7 +192,9 @@ export function AdminMetricsView({
                       </div>
 
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 shrink-0">
-                        Puesto #{rank}
+                        {dest.sales !== undefined
+                          ? `${dest.sales} ${dest.sales === 1 ? "venta" : "ventas"}`
+                          : `Puesto #${rank}`}
                       </span>
                     </li>
                   )

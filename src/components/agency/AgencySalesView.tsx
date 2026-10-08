@@ -174,13 +174,17 @@ export function AgencySalesView({
                           <strong className="text-slate-900 font-semibold">
                             {sale.buyer.fullName}
                           </strong>
-                          <span className="text-[11px] text-slate-500 flex items-center gap-1">
-                            <Mail className="w-3 h-3 text-slate-400" />
-                            {sale.buyer.email}
-                          </span>
-                          <span className="text-[10px] text-slate-400">
-                            DNI: {sale.buyer.nationalId}
-                          </span>
+                          {sale.buyer.email && (
+                            <span className="text-[11px] text-slate-500 flex items-center gap-1">
+                              <Mail className="w-3 h-3 text-slate-400" />
+                              {sale.buyer.email}
+                            </span>
+                          )}
+                          {sale.buyer.nationalId && sale.buyer.nationalId !== "-" && (
+                            <span className="text-[10px] text-slate-400">
+                              DNI: {sale.buyer.nationalId}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </td>

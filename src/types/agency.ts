@@ -48,23 +48,26 @@ export interface AgencySaleBuyerDTO {
   lastName: string
   email: string
   nationalId: string
+  phoneNumber?: string
 }
 
 export interface AgencySalePackageDTO {
   id: number
   name: string
-  hotelName: string
-  destinationCityName: string
-  initialDate: string
-  finalDate: string
+  hotelName?: string
+  destinationCityName?: string
+  initialDate?: string
+  finalDate?: string
+  startDate?: string
+  endDate?: string
 }
 
 export interface AgencySaleDTO {
   id: number
-  buyer: AgencySaleBuyerDTO
-  travelPackage: AgencySalePackageDTO
   price: number
   purchasedAt: string
+  buyer: AgencySaleBuyerDTO
+  travelPackage: AgencySalePackageDTO | any
 }
 
 export interface HotelOptionDTO {

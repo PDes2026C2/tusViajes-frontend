@@ -65,10 +65,10 @@ export const agencyDataSource = {
       if (filter.size !== undefined) params.size = filter.size
     }
 
-    const response = await apiClient.get<AgencyFlightDTO[]>("/flights", {
+    const response = await apiClient.get<PageResponseDTO<AgencyFlightDTO>>("/flights", {
       params,
     })
-    return response.data || []
+    return response.data?.content || []
   },
 
   async getFlightById(id: number): Promise<AgencyFlightDTO> {
@@ -77,104 +77,13 @@ export const agencyDataSource = {
   },
 
 
-  async getSales(agencyId?: number): Promise<AgencySaleDTO[]> {
-    try {
-      const response = await apiClient.get<AgencySaleDTO[]>("/agency/sales", {
-        params: { agencyId },
-      })
-      if (Array.isArray(response.data) && response.data.length > 0) {
-        return response.data
+  async getSales(page = 0, size = 100): Promise<AgencySaleDTO[]> {
+    const response = await apiClient.get<PageResponseDTO<AgencySaleDTO>>(
+      "/agencies/me/sales",
+      {
+        params: { page, size },
       }
-      throw new Error("No sales from API")
-    } catch {
-      const now = new Date()
-      const d1 = new Date(now.getTime() - 2 * 24 * 3600 * 1000)
-      const d2 = new Date(now.getTime() - 5 * 24 * 3600 * 1000)
-      const d3 = new Date(now.getTime() - 9 * 24 * 3600 * 1000)
-      const d4 = new Date(now.getTime() - 15 * 24 * 3600 * 1000)
-
-      return [
-        {
-          id: 1001,
-          buyer: {
-            id: 1,
-            firstName: "Lucía",
-            lastName: "García",
-            email: "lucia.garcia@gmail.com",
-            nationalId: "38992110",
-          },
-          travelPackage: {
-            id: 101,
-            name: "Escapada Soñada a Nueva York",
-            hotelName: "Manhattan Grand Hotel",
-            destinationCityName: "Nueva York, Estados Unidos",
-            initialDate: new Date(now.getTime() + 10 * 24 * 3600 * 1000).toISOString(),
-            finalDate: new Date(now.getTime() + 17 * 24 * 3600 * 1000).toISOString(),
-          },
-          price: 1250,
-          purchasedAt: d1.toISOString(),
-        },
-        {
-          id: 1002,
-          buyer: {
-            id: 2,
-            firstName: "Martín",
-            lastName: "Rodríguez",
-            email: "martin.rod@hotmail.com",
-            nationalId: "40123987",
-          },
-          travelPackage: {
-            id: 102,
-            name: "Paraíso Tropical en Miami Beach",
-            hotelName: "Oceanfront Palms Resort",
-            destinationCityName: "Miami, Estados Unidos",
-            initialDate: new Date(now.getTime() + 20 * 24 * 3600 * 1000).toISOString(),
-            finalDate: new Date(now.getTime() + 30 * 24 * 3600 * 1000).toISOString(),
-          },
-          price: 1420,
-          purchasedAt: d2.toISOString(),
-        },
-        {
-          id: 1003,
-          buyer: {
-            id: 3,
-            firstName: "Camila",
-            lastName: "Sosa",
-            email: "camila.sosa@yahoo.com",
-            nationalId: "35678432",
-          },
-          travelPackage: {
-            id: 101,
-            name: "Escapada Soñada a Nueva York",
-            hotelName: "Manhattan Grand Hotel",
-            destinationCityName: "Nueva York, Estados Unidos",
-            initialDate: new Date(now.getTime() + 15 * 24 * 3600 * 1000).toISOString(),
-            finalDate: new Date(now.getTime() + 22 * 24 * 3600 * 1000).toISOString(),
-          },
-          price: 1250,
-          purchasedAt: d3.toISOString(),
-        },
-        {
-          id: 1004,
-          buyer: {
-            id: 4,
-            firstName: "Ignacio",
-            lastName: "Fernández",
-            email: "nacho.fer@outlook.com",
-            nationalId: "42887612",
-          },
-          travelPackage: {
-            id: 102,
-            name: "Paraíso Tropical en Miami Beach",
-            hotelName: "Oceanfront Palms Resort",
-            destinationCityName: "Miami, Estados Unidos",
-            initialDate: new Date(now.getTime() + 25 * 24 * 3600 * 1000).toISOString(),
-            finalDate: new Date(now.getTime() + 35 * 24 * 3600 * 1000).toISOString(),
-          },
-          price: 1420,
-          purchasedAt: d4.toISOString(),
-        },
-      ]
-    }
+    )
+    return response.data?.content || []
   },
 }
