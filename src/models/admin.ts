@@ -77,7 +77,7 @@ export const metricsMapper = {
 
   mapTopAgencyDTOToModel: (dto: TopAgencyDTO, index = 0): TopAgency => ({
     agency: packageMappers.mapSimpleAgencyDTOToModel(dto.agency),
-    sales: dto.salesCount,
+    sales: dto.sellsCount,
     rank: index + 1,
   }),
 

@@ -253,7 +253,7 @@ describe("useAdminStore", () => {
           businessName: "Agencia Sol",
           email: "email@agencia.com",
         },
-          salesCount: 80,
+        sellsCount: 80,
       },
     ]
     const expectedTopAgencies: TopAgency[] = [

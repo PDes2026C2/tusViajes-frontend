@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { AdminMetricsView } from "./AdminMetricsView"
+import { metricsMapper } from "../../models/admin"
+import type { TopAgencyDTO } from "../../types/admin"
 import type {
   TopAgency,
   TopBuyer,
@@ -106,6 +108,30 @@ describe("AdminMetricsView component", () => {
     expect(screen.getByText("Destinos mejor valorados")).toBeDefined()
     expect(screen.getByText("Bariloche")).toBeDefined()
     expect(screen.getByText("9.7")).toBeDefined()
+  })
+
+  it.each([15, 1, 0])("renders %i agency sales from the API sellsCount field", (sales) => {
+    // arrange
+    const agencyDTO: TopAgencyDTO = {
+      agency: mockTopAgencies[0].agency,
+      sellsCount: sales,
+    }
+    const expectedSalesLabel = `${sales} ${sales === 1 ? "venta" : "ventas"}`
+
+    // act
+    render(
+      <AdminMetricsView
+        topBuyers={[]}
+        topRankedDestinations={[]}
+        topAgencies={[metricsMapper.mapTopAgencyDTOToModel(agencyDTO)]}
+        topRatedDestinations={[]}
+        isLoading={false}
+      />
+    )
+
+    // assert
+    expect(screen.getByText(agencyDTO.agency.businessName)).toBeInTheDocument()
+    expect(screen.getByText(expectedSalesLabel)).toBeInTheDocument()
   })
 
   it("calls onRefresh when clicking the refresh metrics button", () => {
