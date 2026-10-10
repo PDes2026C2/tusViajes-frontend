@@ -2,21 +2,21 @@ import { z } from "zod"
 
 export const packageFormSchema = z
   .object({
-    name: z.string().min(3, "Name must be at least 3 characters"),
+    name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
     description: z.string().optional(),
-    price: z.coerce.number().positive("Price must be greater than 0"),
+    price: z.coerce.number().positive("El precio debe ser mayor a 0"),
     startDate: z.date(),
     endDate: z.date(),
-    hotelId: z.coerce.number().positive("Please select a hotel"),
-    departureFlightId: z.coerce.number().positive("Please select a departure flight"),
-    returnFlightId: z.coerce.number().positive("Please select a return flight"),
+    hotelId: z.coerce.number().positive("Selecciona un hotel"),
+    departureFlightId: z.coerce.number().positive("Selecciona un vuelo de salida"),
+    returnFlightId: z.coerce.number().positive("Selecciona un vuelo de llegada"),
   })
   .refine((data) => data.endDate > data.startDate, {
-    message: "End date must be after start date",
+    message: "La fecha de fin debe ser posterior a la fecha de inicio",
     path: ["endDate"],
   })
   .refine((data) => data.departureFlightId !== data.returnFlightId, {
-    message: "Departure and return flights cannot be the same flight",
+    message: "El vuelo de salida debe ser distinto al vuelo de llegada",
     path: ["returnFlightId"],
   })
 
