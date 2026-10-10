@@ -34,5 +34,5 @@ export interface SimpleAgencyDTO {
 
 export interface TopAgencyDTO {
   agency: SimpleAgencyDTO
-  salesCount: number
+  sellsCount: number
 }

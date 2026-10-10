@@ -2,6 +2,8 @@ import {
   ArrowRight,
   Building2,
   Calendar,
+  Heart,
+  LoaderCircle,
   Moon,
   PlaneLanding,
   PlaneTakeoff,
@@ -12,6 +14,10 @@ import { Button } from "../ui/button"
 export interface TravelPackageCardProps {
   packageData: TravelPackage
   onViewDetails?: (pkg: TravelPackage) => void
+  isFavorite?: boolean
+  isAddingFavorite?: boolean
+  canAddFavorite?: boolean
+  onAddFavorite?: (pkg: TravelPackage) => void
 }
 
 function formatDate(date: Date): string {
@@ -33,6 +39,10 @@ function formatPrice(price: number): string {
 export function TravelPackageCard({
   packageData,
   onViewDetails,
+  isFavorite = false,
+  isAddingFavorite = false,
+  canAddFavorite = false,
+  onAddFavorite,
 }: TravelPackageCardProps) {
   const {
     name,
@@ -159,6 +169,25 @@ export function TravelPackageCard({
         </div>
 
         <div className="flex flex-col gap-2 w-full">
+          {canAddFavorite && onAddFavorite && (
+            <Button
+              type="button"
+              variant="outline"
+              aria-label={isFavorite ? `Guardado en favoritos: ${name}` : `Agregar a favoritos: ${name}`}
+              aria-pressed={isFavorite}
+              aria-busy={isAddingFavorite}
+              disabled={isFavorite || isAddingFavorite}
+              onClick={() => onAddFavorite(packageData)}
+              className="w-full rounded-xl border-primary/20 text-primary font-semibold py-2.5 h-auto"
+            >
+              {isAddingFavorite ? (
+                <LoaderCircle className="w-4 h-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} aria-hidden="true" />
+              )}
+              <span>{isFavorite ? "En favoritos" : isAddingFavorite ? "Guardando..." : "Agregar a favoritos"}</span>
+            </Button>
+          )}
           {/* Boton principal: Ver detalle */}
           <Button
             type="button"

@@ -180,7 +180,7 @@ describe("adminAgencyDataSource", () => {
           businessName: "Viajes Express",
           email: "email@agencia1.com",
         },
-        salesCount: 150,
+        sellsCount: 150,
       },
     ]
     vi.mocked(apiClient.get).mockResolvedValue({ data: mockDTOs })

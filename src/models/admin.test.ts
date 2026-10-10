@@ -111,7 +111,7 @@ describe("metricsMapper", () => {
     expect(result).toEqual(expectedModel)
   })
 
-  it("maps AgencyResponseDTO to TopAgency domain model", () => {
+  it("maps TopAgencyDTO with sellsCount to TopAgency domain model", () => {
     // arrange
     const dto: TopAgencyDTO = {
       agency: {
@@ -119,7 +119,7 @@ describe("metricsMapper", () => {
         businessName: "Patagonia Viajes",
         email: "info@patagonia.com",
       },
-      salesCount: 45,
+      sellsCount: 45,
     }
     const expectedModel: TopAgency = {
       agency: {

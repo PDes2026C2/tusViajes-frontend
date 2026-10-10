@@ -3,10 +3,12 @@ import { SearchPackage } from "@/components/package/search"
 import { PackageList } from "@/components/package/package-list"
 import { useHeader } from "@/hooks/useHeader"
 import { useSearch } from "@/hooks/useSearch"
+import { useFavorites } from "@/hooks/useFavorites"
 import type { TravelPackage } from "@/models/package"
 
 export function Home() {
   const headerProps = useHeader()
+  const favoritesProps = useFavorites()
   const {
     selectedOriginCountry,
     selectedOriginCity,
@@ -86,6 +88,7 @@ export function Home() {
 
         {/* Listado horizontal de paquetes y paginación centrada */}
         <PackageList
+          {...favoritesProps}
           packages={packages}
           isLoading={isSearching}
           currentPage={page}
