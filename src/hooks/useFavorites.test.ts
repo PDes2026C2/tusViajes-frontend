@@ -29,10 +29,11 @@ describe("useFavorites", () => {
       login: vi.fn(), registerBuyer: vi.fn(), registerAgency: vi.fn(), logout: vi.fn(),
     }
     favoritesState = {
-      buyerId: null, favoriteIds: [], pendingPackageIds: [], isLoading: false,
+      buyerId: null, favoriteIds: [], favoritePackages: [], pendingPackageIds: [], isLoading: false, error: null,
       reset: vi.fn(),
       fetchFavorites: vi.fn().mockResolvedValue(undefined),
       addFavorite: vi.fn().mockResolvedValue(true),
+      removeFavorite: vi.fn().mockResolvedValue(true),
     }
     vi.mocked(useAuth).mockImplementation(() => authState)
     vi.mocked(useFavoritesStore).mockImplementation(() => favoritesState)
@@ -55,9 +56,10 @@ describe("useFavorites", () => {
   it("loads and exposes the buyer's favorite and pending packages", () => {
     // arrange
     authState = { ...authState, user: buyer, isAuthenticated: true }
-    favoritesState = { ...favoritesState, buyerId: buyer.id, favoriteIds: [101], pendingPackageIds: [102] }
+    favoritesState = { ...favoritesState, buyerId: buyer.id, favoriteIds: [101], favoritePackages: [favoritePackage], pendingPackageIds: [102] }
     const expectedState = {
-      favoriteIds: [101], pendingFavoriteIds: [102], canAddFavorite: true,
+      favoriteIds: [101], favoritePackages: [favoritePackage], pendingFavoriteIds: [102], canAddFavorite: true,
+      isLoadingFavorites: false, favoritesError: null,
     }
 
     // act
@@ -84,7 +86,7 @@ describe("useFavorites", () => {
     expect(authState.modal.open).not.toHaveBeenCalled()
   })
 
-  it("shows a success notification after saving", async () => {
+  it("saves the package without showing a success notification", async () => {
     // arrange
     authState = { ...authState, user: buyer, isAuthenticated: true }
     const { result } = renderHook(() => useFavorites())
@@ -93,8 +95,8 @@ describe("useFavorites", () => {
     await act(async () => result.current.onAddFavorite(favoritePackage))
 
     // assert
-    expect(favoritesState.addFavorite).toHaveBeenCalledWith(favoritePackage.id)
-    expect(toast.success).toHaveBeenCalledWith("Paquete agregado a tus favoritos.")
+    expect(favoritesState.addFavorite).toHaveBeenCalledWith(favoritePackage.id, 0)
+    expect(toast.success).not.toHaveBeenCalled()
   })
 
   it("does not announce success for an ignored or duplicate request", async () => {
@@ -173,5 +175,109 @@ describe("useFavorites", () => {
 
     // assert
     expect(favoritesState.reset).toHaveBeenLastCalledWith()
+  })
+
+  it("hides the previous buyer's packages and errors while loading the new session", () => {
+    // arrange
+    authState = { ...authState, user: buyer, isAuthenticated: true }
+    favoritesState = {
+      ...favoritesState, buyerId: 8, favoritePackages: [favoritePackage], error: "Error de otra sesión",
+    }
+    const expectedState = { favoritePackages: [], favoritesError: null, isLoadingFavorites: true }
+
+    // act
+    const { result } = renderHook(() => useFavorites())
+
+    // assert
+    expect(result.current).toMatchObject(expectedState)
+  })
+
+  it("removes a saved package without showing a success notification", async () => {
+    // arrange
+    authState = { ...authState, user: buyer, isAuthenticated: true }
+    favoritesState = { ...favoritesState, buyerId: buyer.id, favoriteIds: [101] }
+    const { result } = renderHook(() => useFavorites())
+
+    // act
+    await act(async () => result.current.onRemoveFavorite(favoritePackage))
+
+    // assert
+    expect(favoritesState.removeFavorite).toHaveBeenCalledWith(favoritePackage.id, 0)
+    expect(toast.success).not.toHaveBeenCalled()
+  })
+
+  it("shows the removal error without announcing success", async () => {
+    // arrange
+    authState = { ...authState, user: buyer, isAuthenticated: true }
+    favoritesState = { ...favoritesState, buyerId: buyer.id }
+    vi.mocked(favoritesState.removeFavorite).mockRejectedValue(new Error("Servicio no disponible"))
+    const { result } = renderHook(() => useFavorites())
+
+    // act
+    await act(async () => result.current.onRemoveFavorite(favoritePackage))
+
+    // assert
+    expect(toast.error).toHaveBeenCalledWith("Servicio no disponible")
+    expect(toast.success).not.toHaveBeenCalled()
+  })
+
+  it.each(["visitor", "agency", "admin", "previous buyer"])("avoids removal calls for a %s", async (session) => {
+    // arrange
+    if (session !== "visitor") {
+      const role: Role = session === "agency" ? "AGENCY" : session === "admin" ? "ADMIN" : "BUYER"
+      authState = { ...authState, user: { ...buyer, role }, isAuthenticated: true }
+      favoritesState = { ...favoritesState, buyerId: 8 }
+    }
+    const { result } = renderHook(() => useFavorites())
+
+    // act
+    await act(async () => result.current.onRemoveFavorite(favoritePackage))
+
+    // assert
+    expect(favoritesState.removeFavorite).not.toHaveBeenCalled()
+    expect(toast.success).not.toHaveBeenCalled()
+  })
+
+  it("does not announce a removal ignored by the store", async () => {
+    // arrange
+    authState = { ...authState, user: buyer, isAuthenticated: true }
+    favoritesState = { ...favoritesState, buyerId: buyer.id }
+    vi.mocked(favoritesState.removeFavorite).mockResolvedValue(false)
+    const { result } = renderHook(() => useFavorites())
+
+    // act
+    await act(async () => result.current.onRemoveFavorite(favoritePackage))
+
+    // assert
+    expect(toast.success).not.toHaveBeenCalled()
+  })
+
+  it("passes the requested minimum loading duration to both favorite actions", async () => {
+    // arrange
+    authState = { ...authState, user: buyer, isAuthenticated: true }
+    favoritesState = { ...favoritesState, buyerId: buyer.id }
+    const { result } = renderHook(() => useFavorites({ minimumLoadingMs: 1000 }))
+
+    // act
+    await act(async () => result.current.onAddFavorite(favoritePackage))
+    await act(async () => result.current.onRemoveFavorite(favoritePackage))
+
+    // assert
+    expect(favoritesState.addFavorite).toHaveBeenCalledWith(favoritePackage.id, 1000)
+    expect(favoritesState.removeFavorite).toHaveBeenCalledWith(favoritePackage.id, 1000)
+  })
+
+  it("retries loading favorites for the current buyer", async () => {
+    // arrange
+    authState = { ...authState, user: buyer, isAuthenticated: true }
+    favoritesState = { ...favoritesState, buyerId: buyer.id, error: "Servicio no disponible" }
+    const { result } = renderHook(() => useFavorites())
+    vi.mocked(favoritesState.fetchFavorites).mockClear()
+
+    // act
+    await act(async () => result.current.onRetryFavorites())
+
+    // assert
+    expect(favoritesState.fetchFavorites).toHaveBeenCalledTimes(1)
   })
 })

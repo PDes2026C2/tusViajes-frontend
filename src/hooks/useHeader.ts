@@ -18,6 +18,14 @@ export function useHeader() {
     }
   }
 
+  const handleFavoritesClick = () => {
+    if (!isAuthenticated) {
+      modal.open("login", "/favorites")
+    } else if (user?.role === "BUYER") {
+      navigate("/favorites")
+    }
+  }
+
   const handleAgencyClick = () => {
     if (!isAuthenticated) {
       modal.open("register_agency")
@@ -48,6 +56,7 @@ export function useHeader() {
     userRole: user?.role as Role | undefined,
     onNavigateHome: handleNavigateHome,
     onMyTripsClick: handleMyTripsClick,
+    onFavoritesClick: handleFavoritesClick,
     onAgencyClick: handleAgencyClick,
     onAdminClick: handleAdminClick,
     onLoginClick: handleLoginClick,

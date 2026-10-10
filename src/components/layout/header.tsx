@@ -1,3 +1,4 @@
+import { Heart } from "lucide-react";
 import type { Role } from "../../models/auth";
 import { Button } from "../ui/button";
 
@@ -7,6 +8,7 @@ export interface HeaderProps {
     userRole?: Role;
     onNavigateHome?: () => void;
     onMyTripsClick?: () => void;
+    onFavoritesClick?: () => void;
     onAgencyClick?: () => void;
     onAdminClick?: () => void;
     onLoginClick?: () => void;
@@ -19,13 +21,14 @@ export function Header({
     userRole,
     onNavigateHome,
     onMyTripsClick,
+    onFavoritesClick,
     onAgencyClick,
     onAdminClick,
     onLoginClick,
     onLogoutClick,
 }: HeaderProps) {
     return (
-        <header className="w-full bg-white border-b border-slate-100 flex justify-between items-center px-4 sm:px-8 py-4">
+        <header className="w-full bg-white border-b border-slate-100 flex flex-wrap sm:flex-nowrap gap-3 justify-between items-center px-4 sm:px-8 py-4">
             <button
                 type="button"
                 onClick={onNavigateHome}
@@ -37,7 +40,7 @@ export function Header({
             {/* Postulate como Agencia banner/button */}
             {userRole !== "ADMIN" && (
                 <div className="hidden md:flex items-center gap-3 border border-slate-200 rounded-full pl-5 pr-1.5 bg-white shadow-xs">
-                    <span className="text-sm font-medium text-primary">
+                    <span className="hidden xl:inline text-sm font-medium text-primary">
                         {userRole === "AGENCY" ? "Tu panel de gestión" : "¿Querés ofrecer paquetes?"}
                     </span>
                     <Button
@@ -63,7 +66,20 @@ export function Header({
             )}
 
             {/* Actions */}
-            <div className="flex items-center gap-2.5">
+            <nav aria-label="Navegación principal" className="ml-auto flex items-center gap-2 sm:gap-2.5">
+                {(!isAuthenticated || userRole === "BUYER") && (
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="icon-lg"
+                        aria-label="Mis favoritos"
+                        title="Mis favoritos"
+                        onClick={onFavoritesClick}
+                        className="rounded-full border-slate-200 text-primary hover:bg-primary/5 hover:border-primary/30 cursor-pointer"
+                    >
+                        <Heart aria-hidden="true" />
+                    </Button>
+                )}
                 <Button
                     type="button"
                     onClick={onMyTripsClick}
@@ -96,7 +112,7 @@ export function Header({
                         Ingresar
                     </Button>
                 )}
-            </div>
+            </nav>
         </header>
     );
 }

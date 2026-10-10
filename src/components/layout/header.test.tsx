@@ -3,6 +3,42 @@ import { describe, expect, it, vi } from "vitest"
 import { Header } from "./header"
 
 describe("Header component", () => {
+  it("shows the favorites heart and calls its action for a buyer", () => {
+    // arrange
+    const onFavoritesClick = vi.fn()
+    render(<Header isAuthenticated userRole="BUYER" onFavoritesClick={onFavoritesClick} />)
+    const favoritesButton = screen.getByRole("button", { name: "Mis favoritos" })
+
+    // act
+    fireEvent.click(favoritesButton)
+
+    // assert
+    expect(favoritesButton).toHaveAttribute("title", "Mis favoritos")
+    expect(onFavoritesClick).toHaveBeenCalledTimes(1)
+  })
+
+  it("shows the favorites action to visitors", () => {
+    // arrange
+    const onFavoritesClick = vi.fn()
+
+    // act
+    render(<Header onFavoritesClick={onFavoritesClick} />)
+
+    // assert
+    expect(screen.getByRole("button", { name: "Mis favoritos" })).toBeInTheDocument()
+  })
+
+  it.each(["ADMIN", "AGENCY"] as const)("hides buyer favorites for %s", (role) => {
+    // arrange
+    const onFavoritesClick = vi.fn()
+
+    // act
+    render(<Header isAuthenticated userRole={role} onFavoritesClick={onFavoritesClick} />)
+
+    // assert
+    expect(screen.queryByRole("button", { name: "Mis favoritos" })).not.toBeInTheDocument()
+  })
+
   it("renders the brand title and calls onNavigateHome when clicked", () => {
     // arrange
     const onNavigateHome = vi.fn()

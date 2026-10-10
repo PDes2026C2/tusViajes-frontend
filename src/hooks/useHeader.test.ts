@@ -277,4 +277,46 @@ describe("useHeader hook", () => {
     // assert
     expect(mockLogout).toHaveBeenCalledTimes(1)
   })
+
+  it("opens login with the favorites destination for a visitor", () => {
+    // arrange
+    const { result } = renderHook(() => useHeader())
+
+    // act
+    result.current.onFavoritesClick()
+
+    // assert
+    expect(mockOpenModal).toHaveBeenCalledWith("login", "/favorites")
+    expect(mockNavigate).not.toHaveBeenCalled()
+  })
+
+  it("navigates to favorites for a buyer", () => {
+    // arrange
+    vi.mocked(useAuth).mockReturnValue({
+      ...vi.mocked(useAuth)(), user: mockBuyerUser, isAuthenticated: true,
+    })
+    const { result } = renderHook(() => useHeader())
+
+    // act
+    result.current.onFavoritesClick()
+
+    // assert
+    expect(mockNavigate).toHaveBeenCalledWith("/favorites")
+    expect(mockOpenModal).not.toHaveBeenCalled()
+  })
+
+  it.each([mockAdminUser, mockAgencyUser])("does not navigate to buyer favorites for $role", (user) => {
+    // arrange
+    vi.mocked(useAuth).mockReturnValue({
+      ...vi.mocked(useAuth)(), user, isAuthenticated: true,
+    })
+    const { result } = renderHook(() => useHeader())
+
+    // act
+    result.current.onFavoritesClick()
+
+    // assert
+    expect(mockNavigate).not.toHaveBeenCalled()
+    expect(mockOpenModal).not.toHaveBeenCalled()
+  })
 })

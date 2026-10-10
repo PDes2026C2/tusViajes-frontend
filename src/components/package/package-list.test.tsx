@@ -118,25 +118,29 @@ describe("PackageList component", () => {
   it("passes each package's saved status and favorite action to its card", () => {
     // arrange
     const onAddFavorite = vi.fn()
+    const onRemoveFavorite = vi.fn()
     render(
       <PackageList
         packages={mockPackages}
         favoriteIds={[mockPackages[0].id]}
         canAddFavorite
         onAddFavorite={onAddFavorite}
+        onRemoveFavorite={onRemoveFavorite}
       />
     )
-    const savedButton = screen.getByRole("button", { name: `Guardado en favoritos: ${mockPackages[0].name}` })
+    const savedButton = screen.getByRole("button", { name: `Quitar de favoritos: ${mockPackages[0].name}` })
     const unsavedButton = screen.getByRole("button", { name: `Agregar a favoritos: ${mockPackages[1].name}` })
 
     // act
     fireEvent.click(unsavedButton)
+    fireEvent.click(savedButton)
 
     // assert
-    expect(savedButton).toBeDisabled()
+    expect(savedButton).toBeEnabled()
     expect(savedButton).toHaveAttribute("aria-pressed", "true")
     expect(unsavedButton).toBeEnabled()
     expect(onAddFavorite).toHaveBeenCalledWith(mockPackages[1])
+    expect(onRemoveFavorite).toHaveBeenCalledWith(mockPackages[0])
   })
 
   it("disables only the card whose favorite is being saved", () => {

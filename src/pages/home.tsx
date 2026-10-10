@@ -4,11 +4,11 @@ import { PackageList } from "@/components/package/package-list"
 import { useHeader } from "@/hooks/useHeader"
 import { useSearch } from "@/hooks/useSearch"
 import { useFavorites } from "@/hooks/useFavorites"
-import type { TravelPackage } from "@/models/package"
+import { handleViewDetails } from "@/router/packageDetails"
 
 export function Home() {
   const headerProps = useHeader()
-  const favoritesProps = useFavorites()
+  const favoritesProps = useFavorites({ minimumLoadingMs: 1000 })
   const {
     selectedOriginCountry,
     selectedOriginCity,
@@ -37,11 +37,6 @@ export function Home() {
     onChangePage,
     errors,
   } = useSearch()
-
-  const handleViewDetails = (pkg: TravelPackage) => {
-    // Handled in home orchestrator - preparing for details modal/page navigation
-    console.info("Visualizando detalle del paquete:", pkg.name, pkg.id)
-  }
 
   return (
     <div className="min-h-screen bg-slate-50/40 flex flex-col">
