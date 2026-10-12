@@ -3,18 +3,8 @@ import publicClient from "./public-client"
 
 export const locationDataSource = {
   async getCountries(): Promise<CountryDTO[]> {
-    try {
-      const response = await publicClient.get<CountryDTO[]>("/countries")
-      return response.data
-    } catch {
-      // Fallback mock countries for offline/local development
-      return [
-        { isoCode: "AR", name: "Argentina" },
-        { isoCode: "US", name: "Estados Unidos" },
-        { isoCode: "ES", name: "España" },
-        { isoCode: "BR", name: "Brasil" },
-      ]
-    }
+    const response = await publicClient.get<CountryDTO[]>("/countries")
+    return response.data
   },
 
   async getCities(isoCode: string): Promise<CityDTO[]> {
