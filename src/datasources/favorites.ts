@@ -10,4 +10,8 @@ export const favoritesDataSource = {
   async addFavorite(packageId: number): Promise<void> {
     await apiClient.post(`/buyers/me/favorites/${packageId}`)
   },
+
+  async removeFavorite(packageId: number): Promise<void> {
+    await apiClient.delete(`/buyers/me/favorites/${packageId}`)
+  },
 }

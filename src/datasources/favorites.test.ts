@@ -4,7 +4,7 @@ import apiClient from "./api-client"
 import { favoritePackageDTO } from "../tests/fixtures/package"
 
 vi.mock("./api-client", () => ({
-  default: { get: vi.fn(), post: vi.fn() },
+  default: { get: vi.fn(), post: vi.fn(), delete: vi.fn() },
 }))
 
 describe("favoritesDataSource", () => {
@@ -46,5 +46,16 @@ describe("favoritesDataSource", () => {
 
     // assert
     await expect(request).rejects.toBe(expectedError)
+  })
+
+  it("removes a favorite for the authenticated buyer", async () => {
+    // arrange
+    vi.mocked(apiClient.delete).mockResolvedValue({ data: "" })
+
+    // act
+    await favoritesDataSource.removeFavorite(favoritePackageDTO.id)
+
+    // assert
+    expect(apiClient.delete).toHaveBeenCalledWith("/buyers/me/favorites/101")
   })
 })

@@ -15,6 +15,7 @@ export interface PackageListProps {
   pendingFavoriteIds?: number[]
   canAddFavorite?: boolean
   onAddFavorite?: (pkg: TravelPackage) => void
+  onRemoveFavorite?: (pkg: TravelPackage) => void
 }
 
 function PackageListSkeleton() {
@@ -65,6 +66,7 @@ export function PackageList({
   pendingFavoriteIds = [],
   canAddFavorite = false,
   onAddFavorite,
+  onRemoveFavorite,
 }: PackageListProps) {
   return (
     <section className="w-full mt-8 text-left" aria-label="Listado de paquetes">
@@ -109,9 +111,10 @@ export function PackageList({
               packageData={pkg}
               onViewDetails={onViewDetails}
               isFavorite={favoriteIds.includes(pkg.id)}
-              isAddingFavorite={pendingFavoriteIds.includes(pkg.id)}
+              isUpdatingFavorite={pendingFavoriteIds.includes(pkg.id)}
               canAddFavorite={canAddFavorite}
               onAddFavorite={onAddFavorite}
+              onRemoveFavorite={onRemoveFavorite}
             />
           ))}
 
