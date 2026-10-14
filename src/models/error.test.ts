@@ -129,4 +129,79 @@ describe("AppError and errorMappers", () => {
     // assert
     expect(result).toBe(original)
   })
+
+  it("formats single validation error when message is generic 'Error de validación'", () => {
+    // arrange
+    const dto: ErrorDTO = {
+      code: 400,
+      message: "Error de validación",
+      errors: { email: "El email debe ser una dirección válida" },
+    }
+
+    // act
+    const appError = errorMappers.mapDTOToModel(dto)
+
+    // assert
+    expect(appError.message).toBe("El email debe ser una dirección válida")
+    expect(appError.code).toBe("400")
+    expect(appError.errors).toEqual({ email: "El email debe ser una dirección válida" })
+  })
+
+  it("formats multiple validation errors as a bulleted list when message is generic", () => {
+    // arrange
+    const dto: ErrorDTO = {
+      code: 400,
+      message: "Error de validacion",
+      errors: {
+        email: "El email es obligatorio",
+        password: "La contraseña debe tener al menos 8 caracteres",
+      },
+    }
+
+    // act
+    const appError = errorMappers.mapDTOToModel(dto)
+
+    // assert
+    expect(appError.message).toBe(
+      "• El email es obligatorio\n\n• La contraseña debe tener al menos 8 caracteres"
+    )
+    expect(appError.code).toBe("400")
+    expect(appError.errors).toEqual({
+      email: "El email es obligatorio",
+      password: "La contraseña debe tener al menos 8 caracteres",
+    })
+  })
+
+  it("extracts validation errors from AxiosError 400 Bad Request with numeric code and errors map", () => {
+    // arrange
+    const mockAxiosError = {
+      isAxiosError: true,
+      name: "AxiosError",
+      message: "Request failed with status code 400",
+      response: {
+        status: 400,
+        statusText: "Bad Request",
+        data: {
+          code: 400,
+          message: "Error de validación",
+          errors: {
+            taxId: "El CUIT debe seguir el formato XX-XXXXXXXX-X",
+          },
+        } satisfies ErrorDTO,
+        headers: {},
+        config: {} as InternalAxiosRequestConfig,
+      } as AxiosResponse,
+    } as AxiosError
+
+    // act
+    const result = errorMappers.fromAxiosError(mockAxiosError)
+
+    // assert
+    expect(result).toBeInstanceOf(AppError)
+    expect(result.message).toBe("El CUIT debe seguir el formato XX-XXXXXXXX-X")
+    expect(result.code).toBe("400")
+    expect(result.errors).toEqual({
+      taxId: "El CUIT debe seguir el formato XX-XXXXXXXX-X",
+    })
+  })
 })

@@ -1,20 +1,58 @@
 import axios from "axios"
 import type { ErrorDTO } from "../types/error"
 
+export function formatValidationErrors(errors?: Record<string, string>): string {
+  if (!errors) return ""
+  const entries = Object.entries(errors).filter(([_, msg]) => Boolean(msg && msg.trim()))
+  if (entries.length === 0) return ""
+  if (entries.length === 1) return entries[0][1]
+  return entries.map(([_, msg]) => `• ${msg}`).join("\n\n")
+}
+
+export function isGenericValidationMessage(message?: string): boolean {
+  if (!message) return true
+  const normalized = message
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+  return (
+    normalized === "error de validacion" ||
+    normalized === "error de valdiacion" ||
+    normalized === "validation error" ||
+    normalized === "solicitud invalida" ||
+    normalized === "solicitud invalida." ||
+    normalized === "bad request" ||
+    normalized === "invalid request"
+  )
+}
+
 export class AppError extends Error {
   readonly code?: string
+  readonly errors?: Record<string, string>
 
-  constructor(message: string, code?: string) {
-    super(message)
+  constructor(message: string, code?: string, errors?: Record<string, string>) {
+    const hasErrors = Boolean(errors && Object.keys(errors).length > 0)
+    const resolvedMessage =
+      hasErrors && isGenericValidationMessage(message)
+        ? formatValidationErrors(errors)
+        : message
+
+    super(resolvedMessage)
     this.name = "AppError"
     this.code = code
+    this.errors = errors
     Object.setPrototypeOf(this, AppError.prototype)
   }
 }
 
 export const errorMappers = {
   mapDTOToModel(dto: ErrorDTO): AppError {
-    return new AppError(dto.message, dto.code)
+    return new AppError(
+      dto.message,
+      dto.code !== undefined ? String(dto.code) : undefined,
+      dto.errors
+    )
   },
 
   fromAxiosError(error: unknown, fallbackMessage = "Ocurrió un error inesperado"): AppError {
@@ -25,8 +63,20 @@ export const errorMappers = {
     if (axios.isAxiosError(error)) {
       const data = error.response?.data as Partial<ErrorDTO> | undefined
 
-      if (data && typeof data === "object" && typeof data.message === "string") {
-        return new AppError(data.message, typeof data.code === "string" ? data.code : undefined)
+      if (data && typeof data === "object") {
+        const errors =
+          data.errors && typeof data.errors === "object" && !Array.isArray(data.errors)
+            ? (data.errors as Record<string, string>)
+            : undefined
+        const code = data.code !== undefined ? String(data.code) : undefined
+
+        if (typeof data.message === "string") {
+          return new AppError(data.message, code, errors)
+        }
+
+        if (errors && Object.keys(errors).length > 0) {
+          return new AppError(formatValidationErrors(errors), code, errors)
+        }
       }
 
       if (error.response) {
