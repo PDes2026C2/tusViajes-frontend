@@ -7,14 +7,22 @@ export function useHeader() {
   const { user, isAuthenticated, modal, logout } = useAuth()
 
   const handleNavigateHome = () => {
-    navigate("/home")
+    void navigate("/home")
   }
 
   const handleMyTripsClick = () => {
     if (!isAuthenticated) {
       modal.open("login", "/my-trips")
     } else {
-      navigate("/my-trips")
+      void navigate("/my-trips")
+    }
+  }
+
+  const handleFavoritesClick = () => {
+    if (!isAuthenticated) {
+      modal.open("login", "/favorites")
+    } else if (user?.role === "BUYER") {
+      void navigate("/favorites")
     }
   }
 
@@ -22,16 +30,16 @@ export function useHeader() {
     if (!isAuthenticated) {
       modal.open("register_agency")
     } else if (user?.role === "AGENCY") {
-      navigate("/agency/panel")
+      void navigate("/agency/panel")
     } else if (user?.role === "ADMIN") {
-      navigate("/admin/panel")
+      void navigate("/admin/panel")
     } else {
       modal.open("register_agency")
     }
   }
 
   const handleAdminClick = () => {
-    navigate("/admin/panel")
+    void navigate("/admin/panel")
   }
 
   const handleLoginClick = () => {
@@ -48,6 +56,7 @@ export function useHeader() {
     userRole: user?.role as Role | undefined,
     onNavigateHome: handleNavigateHome,
     onMyTripsClick: handleMyTripsClick,
+    onFavoritesClick: handleFavoritesClick,
     onAgencyClick: handleAgencyClick,
     onAdminClick: handleAdminClick,
     onLoginClick: handleLoginClick,

@@ -1,6 +1,6 @@
 export interface ErrorDTO {
-  code: string
+  code: string | number
   message: string
   timestamp?: string
-  errors?: Record<string, unknown>
+  errors?: Record<string, string>
 }

@@ -1,3 +1,4 @@
+import { useState } from "react"
 import {
   ArrowRight,
   Building2,
@@ -15,9 +16,10 @@ export interface TravelPackageCardProps {
   packageData: TravelPackage
   onViewDetails?: (pkg: TravelPackage) => void
   isFavorite?: boolean
-  isAddingFavorite?: boolean
+  isUpdatingFavorite?: boolean
   canAddFavorite?: boolean
   onAddFavorite?: (pkg: TravelPackage) => void
+  onRemoveFavorite?: (pkg: TravelPackage) => void
 }
 
 function formatDate(date: Date): string {
@@ -40,10 +42,17 @@ export function TravelPackageCard({
   packageData,
   onViewDetails,
   isFavorite = false,
-  isAddingFavorite = false,
+  isUpdatingFavorite = false,
   canAddFavorite = false,
   onAddFavorite,
+  onRemoveFavorite,
 }: TravelPackageCardProps) {
+  const [isFavoriteActionHovered, setIsFavoriteActionHovered] = useState(false)
+  const [isFavoriteActionFocused, setIsFavoriteActionFocused] = useState(false)
+  const showRemoveFavorite = isFavorite && (isFavoriteActionHovered || isFavoriteActionFocused)
+  const favoriteLabel = isUpdatingFavorite
+    ? "Cargando..."
+    : isFavorite ? showRemoveFavorite ? "Quitar de favoritos" : "En favoritos" : "Agregar a favoritos"
   const {
     name,
     description,
@@ -169,23 +178,27 @@ export function TravelPackageCard({
         </div>
 
         <div className="flex flex-col gap-2 w-full">
-          {canAddFavorite && onAddFavorite && (
+          {canAddFavorite && (onAddFavorite || onRemoveFavorite) && (
             <Button
               type="button"
               variant="outline"
-              aria-label={isFavorite ? `Guardado en favoritos: ${name}` : `Agregar a favoritos: ${name}`}
+              aria-label={isFavorite ? `Quitar de favoritos: ${name}` : `Agregar a favoritos: ${name}`}
               aria-pressed={isFavorite}
-              aria-busy={isAddingFavorite}
-              disabled={isFavorite || isAddingFavorite}
-              onClick={() => onAddFavorite(packageData)}
-              className="w-full rounded-xl border-primary/20 text-primary font-semibold py-2.5 h-auto"
+              aria-busy={isUpdatingFavorite}
+              disabled={isUpdatingFavorite || (isFavorite ? !onRemoveFavorite : !onAddFavorite)}
+              onClick={() => isFavorite ? onRemoveFavorite?.(packageData) : onAddFavorite?.(packageData)}
+              onMouseEnter={() => setIsFavoriteActionHovered(true)}
+              onMouseLeave={() => setIsFavoriteActionHovered(false)}
+              onFocus={() => setIsFavoriteActionFocused(true)}
+              onBlur={() => setIsFavoriteActionFocused(false)}
+              className="w-full rounded-xl border-primary/20 text-primary font-semibold py-2.5 h-auto cursor-pointer"
             >
-              {isAddingFavorite ? (
+              {isUpdatingFavorite ? (
                 <LoaderCircle className="w-4 h-4 animate-spin" aria-hidden="true" />
               ) : (
-                <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} aria-hidden="true" />
+                <Heart className={`w-4 h-4 ${isFavorite && !showRemoveFavorite ? "fill-current" : ""}`} aria-hidden="true" />
               )}
-              <span>{isFavorite ? "En favoritos" : isAddingFavorite ? "Guardando..." : "Agregar a favoritos"}</span>
+              <span>{favoriteLabel}</span>
             </Button>
           )}
           {/* Boton principal: Ver detalle */}
