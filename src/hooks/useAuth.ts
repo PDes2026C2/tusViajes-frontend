@@ -112,7 +112,7 @@ export function useAuth() {
 
   const handleLogout = () => {
     storeLogout()
-    toast.success("Sesion cerrada con éxito.")
+    toast.success("Sesión cerrada con éxito.")
     navigate("/home")
   }
 
