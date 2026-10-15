@@ -25,6 +25,7 @@ describe("FavoritesView", () => {
     // assert
     expect(screen.queryByRole("heading", { name: "Mis favoritos" })).not.toBeInTheDocument()
     expect(screen.getByRole("heading", { name: "Paquetes guardados", level: 1 })).toBeInTheDocument()
+    expect(screen.getByText("Accedé y gestioná los paquetes que guardaste para tus próximas vacaciones")).toBeInTheDocument()
     expect(screen.getByText(favoritePackage.name)).toBeInTheDocument()
     expect(screen.getByText(secondPackage.name)).toBeInTheDocument()
     expect(screen.getByText("2 paquetes")).toBeInTheDocument()
@@ -108,5 +109,31 @@ describe("FavoritesView", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(viewProps.error)
     expect(viewProps.onRetry).toHaveBeenCalledTimes(1)
     expect(screen.queryByText("Todavía no tenés favoritos")).not.toBeInTheDocument()
+  })
+
+  it("renders availability badges for packages in favorites", () => {
+    // arrange
+    const futurePackage = {
+      ...favoritePackage,
+      id: 201,
+      name: "Escapada Futura",
+      initialDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      finalDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 37),
+    }
+    const expiredPackage = {
+      ...favoritePackage,
+      id: 202,
+      name: "Escapada Vencida",
+      initialDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10),
+      finalDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
+    }
+    viewProps.packages = [futurePackage, expiredPackage]
+
+    // act
+    render(<FavoritesView {...viewProps} />)
+
+    // assert
+    expect(screen.getByText("Disponible")).toBeInTheDocument()
+    expect(screen.getByText("No disponible")).toBeInTheDocument()
   })
 })
