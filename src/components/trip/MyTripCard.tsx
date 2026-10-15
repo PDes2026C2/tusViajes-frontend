@@ -7,9 +7,15 @@ export interface MyTripCardProps {
   trip: BuyerPurchase
   onViewDetails: (pkg: TravelPackage) => void
   onReviewClick: (trip: BuyerPurchase) => void
+  isReviewed?: boolean
 }
 
-export function MyTripCard({ trip, onViewDetails, onReviewClick }: MyTripCardProps) {
+export function MyTripCard({
+  trip,
+  onViewDetails,
+  onReviewClick,
+  isReviewed = false,
+}: MyTripCardProps) {
   const pkg = trip.travelPackage
 
   const renderStatusBadge = () => {
@@ -113,14 +119,21 @@ export function MyTripCard({ trip, onViewDetails, onReviewClick }: MyTripCardPro
           </Button>
 
           {trip.isCompleted ? (
-            <Button
-              type="button"
-              onClick={() => onReviewClick(trip)}
-              className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs px-3 py-1.5 h-auto shadow-xs cursor-pointer flex items-center gap-1.5"
-            >
-              <Star className="size-3.5 fill-current" aria-hidden="true" />
-              Dejar reseña
-            </Button>
+            isReviewed ? (
+              <span className="rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-xs px-3 py-1.5 h-auto flex items-center gap-1.5 font-medium shadow-2xs">
+                <CheckCircle2 className="size-3.5 text-emerald-600" aria-hidden="true" />
+                Reseña enviada
+              </span>
+            ) : (
+              <Button
+                type="button"
+                onClick={() => onReviewClick(trip)}
+                className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs px-3 py-1.5 h-auto shadow-xs cursor-pointer flex items-center gap-1.5"
+              >
+                <Star className="size-3.5 fill-current" aria-hidden="true" />
+                Dejar reseña
+              </Button>
+            )
           ) : (
             <div title="Disponible al finalizar el viaje">
               <Button

@@ -15,6 +15,7 @@ export interface MyTripsViewProps {
   error: string | null
   page?: number
   totalPages?: number
+  reviewedPackageIds?: number[]
   onTabChange: (tab: MyTripsTab) => void
   onRetry: () => void
   onExplore: () => void
@@ -32,6 +33,7 @@ export function MyTripsView({
   error,
   page = 0,
   totalPages = 0,
+  reviewedPackageIds = [],
   onTabChange,
   onRetry,
   onExplore,
@@ -151,6 +153,7 @@ export function MyTripsView({
                 trip={trip}
                 onViewDetails={onViewDetails}
                 onReviewClick={onReviewClick}
+                isReviewed={reviewedPackageIds.includes(trip.travelPackage.id)}
               />
             ))}
           </div>

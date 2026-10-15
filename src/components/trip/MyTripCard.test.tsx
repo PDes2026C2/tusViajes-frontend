@@ -83,4 +83,22 @@ describe("MyTripCard component", () => {
     expect(reviewButton).toBeDisabled()
     expect(screen.getByText("Próximo")).toBeInTheDocument()
   })
+
+  it("renders 'Reseña enviada' badge instead of review button when trip is completed and reviewed", () => {
+    // arrange
+    const onViewDetails = vi.fn()
+    const onReviewClick = vi.fn()
+    render(
+      <MyTripCard
+        trip={mockCompletedTrip}
+        onViewDetails={onViewDetails}
+        onReviewClick={onReviewClick}
+        isReviewed={true}
+      />
+    )
+
+    // act & assert
+    expect(screen.getByText("Reseña enviada")).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Dejar reseña" })).not.toBeInTheDocument()
+  })
 })

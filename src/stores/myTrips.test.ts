@@ -1,12 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { useMyTripsStore } from "./myTrips"
 import { buyerDataSource } from "../datasources/buyer"
+import { reviewDataSource } from "../datasources/review"
 import type { BuyerPurchasesPageDTO } from "../types/buyer"
 import { favoritePackageDTO } from "../tests/fixtures/package"
 
 vi.mock("../datasources/buyer", () => ({
   buyerDataSource: {
     getMyPurchases: vi.fn(),
+  },
+}))
+
+vi.mock("../datasources/review", () => ({
+  reviewDataSource: {
+    createReview: vi.fn(),
+    getMyReviews: vi.fn(),
   },
 }))
 
@@ -31,6 +39,13 @@ describe("useMyTripsStore", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(reviewDataSource.getMyReviews).mockResolvedValue({
+      content: [],
+      totalElements: 0,
+      totalPages: 0,
+      size: 100,
+      number: 0,
+    })
     useMyTripsStore.getState().reset()
   })
 
@@ -41,6 +56,7 @@ describe("useMyTripsStore", () => {
       activeTab: "completed",
       isLoading: true,
       error: "Error",
+      reviewedPackageIds: [99],
     })
 
     // act
@@ -53,6 +69,7 @@ describe("useMyTripsStore", () => {
     expect(state.purchases).toEqual([])
     expect(state.isLoading).toBe(false)
     expect(state.error).toBeNull()
+    expect(state.reviewedPackageIds).toEqual([])
   })
 
   it("updates active tab when setActiveTab is called", () => {
@@ -106,5 +123,72 @@ describe("useMyTripsStore", () => {
     const state = useMyTripsStore.getState()
     expect(state.isLoading).toBe(false)
     expect(state.error).toBe(failureMessage)
+  })
+
+  it("submits a review and records reviewedPackageId in state", async () => {
+    // arrange
+    useMyTripsStore.getState().reset(7)
+    vi.mocked(reviewDataSource.createReview).mockResolvedValueOnce({
+      id: 1,
+      buyerId: 7,
+      travelPackageId: 101,
+      score: 9,
+      comment: "Genial",
+      createdAt: "2026-10-14T20:00:00Z",
+    })
+
+    // act
+    await useMyTripsStore.getState().submitReview(101, { score: 9, comment: "Genial" })
+
+    // assert
+    const state = useMyTripsStore.getState()
+    expect(reviewDataSource.createReview).toHaveBeenCalledWith(101, { score: 9, comment: "Genial" })
+    expect(state.reviewedPackageIds).toContain(101)
+    expect(state.isSubmittingReview).toBe(false)
+  })
+
+  it("records package as reviewed when server reports 409 already reviewed", async () => {
+    // arrange
+    useMyTripsStore.getState().reset(7)
+    vi.mocked(reviewDataSource.createReview).mockRejectedValueOnce(
+      new Error("409: El comprador ya opinó sobre este paquete")
+    )
+
+    // act & assert
+    await expect(
+      useMyTripsStore.getState().submitReview(101, { score: 8, comment: "Ok" })
+    ).rejects.toThrow("409")
+
+    const state = useMyTripsStore.getState()
+    expect(state.reviewedPackageIds).toContain(101)
+  })
+
+  it("fetches reviewed package IDs from server and updates reviewedPackageIds", async () => {
+    // arrange
+    useMyTripsStore.getState().reset(7)
+    vi.mocked(reviewDataSource.getMyReviews).mockResolvedValueOnce({
+      content: [
+        {
+          id: 50,
+          buyerId: 7,
+          travelPackageId: 202,
+          score: 10,
+          comment: "Excelente",
+          createdAt: "2026-10-14T20:00:00Z",
+        },
+      ],
+      totalElements: 1,
+      totalPages: 1,
+      size: 100,
+      number: 0,
+    })
+
+    // act
+    await useMyTripsStore.getState().fetchMyReviews()
+
+    // assert
+    const state = useMyTripsStore.getState()
+    expect(reviewDataSource.getMyReviews).toHaveBeenCalledWith(0, 100)
+    expect(state.reviewedPackageIds).toContain(202)
   })
 })
