@@ -48,11 +48,15 @@ describe("useMyTrips hook", () => {
       totalElements: 2,
       isLoading: false,
       error: null,
+      reviewedPackageIds: [99],
+      isSubmittingReview: false,
       reset: vi.fn(),
       setActiveTab: vi.fn((tab) => {
         tripsState.activeTab = tab
       }),
       fetchMyPurchases: vi.fn().mockResolvedValue(undefined),
+      fetchMyReviews: vi.fn().mockResolvedValue(undefined),
+      submitReview: vi.fn().mockResolvedValue(undefined),
     }
 
     vi.mocked(useMyTripsStore).mockImplementation(() => tripsState)
@@ -66,6 +70,7 @@ describe("useMyTrips hook", () => {
     expect(result.current.upcomingCount).toBe(1)
     expect(result.current.completedCount).toBe(1)
     expect(result.current.currentTrips).toEqual([mockUpcomingTrip])
+    expect(result.current.reviewedPackageIds).toEqual([99])
 
     // act (switch tab)
     act(() => {

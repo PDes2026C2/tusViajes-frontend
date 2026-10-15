@@ -82,4 +82,25 @@ describe("MyTripsView component", () => {
     expect(screen.getByText("No tenés viajes próximos")).toBeInTheDocument()
     expect(defaultProps.onExplore).toHaveBeenCalledTimes(1)
   })
+
+  it("renders 'Reseña enviada' badge when package id is in reviewedPackageIds", () => {
+    // arrange
+    const completedTrip: BuyerPurchase = {
+      ...mockTrip,
+      id: 2,
+      status: "COMPLETED",
+      isCompleted: true,
+    }
+    render(
+      <MyTripsView
+        {...defaultProps}
+        trips={[completedTrip]}
+        activeTab="completed"
+        reviewedPackageIds={[completedTrip.travelPackage.id]}
+      />
+    )
+
+    // act & assert
+    expect(screen.getByText("Reseña enviada")).toBeInTheDocument()
+  })
 })
