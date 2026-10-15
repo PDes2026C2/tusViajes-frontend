@@ -18,7 +18,7 @@ describe("PackageSummaryCard", () => {
 
   it("renders the hotel, price, destination, dates, nights and round-trip flights", () => {
     // arrange
-    const expectedDates = `${savedPackage.startDate.toLocaleDateString("es-AR")} - ${savedPackage.endDate.toLocaleDateString("es-AR")} (${savedPackage.nights}n)`
+    const expectedDates = `${savedPackage.startDate.toLocaleDateString("es-AR")} - ${savedPackage.endDate.toLocaleDateString("es-AR")} (${savedPackage.nights} ${savedPackage.nights === 1 ? "noche" : "noches"})`
 
     // act
     render(<PackageSummaryCard packageData={savedPackage} />)
@@ -53,5 +53,16 @@ describe("PackageSummaryCard", () => {
     expect(screen.getByText("Sin descripción proporcionada.")).toBeInTheDocument()
     expect(screen.getByText(savedPackage.hotel.name)).toBeInTheDocument()
     expect(onEdit).toHaveBeenCalledTimes(1)
+  })
+
+  it("renders an optional status badge alongside image action", () => {
+    // arrange
+    const statusBadge = <span data-testid="status-badge">Disponible</span>
+
+    // act
+    render(<PackageSummaryCard packageData={savedPackage} statusBadge={statusBadge} />)
+
+    // assert
+    expect(screen.getByTestId("status-badge")).toBeInTheDocument()
   })
 })

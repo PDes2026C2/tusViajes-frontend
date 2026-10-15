@@ -5,12 +5,13 @@ import type { AgencyPackageItem } from "../../models/agency"
 export interface PackageSummaryCardProps {
   packageData: AgencyPackageItem
   imageAction?: ReactNode
+  statusBadge?: ReactNode
   children?: ReactNode
 }
 
-export function PackageSummaryCard({ packageData: pkg, imageAction, children }: PackageSummaryCardProps) {
+export function PackageSummaryCard({ packageData: pkg, imageAction, statusBadge, children }: PackageSummaryCardProps) {
   return (
-    <article className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs hover:shadow-md transition-shadow flex flex-col justify-between">
+    <article className="w-full bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs hover:shadow-md transition-shadow flex flex-col justify-between">
       <div className="relative h-44 bg-slate-100 overflow-hidden">
         {pkg.hotel.photoUrl ? (
           <img src={pkg.hotel.photoUrl} alt={pkg.hotel.name} className="w-full h-full object-cover" />
@@ -19,7 +20,12 @@ export function PackageSummaryCard({ packageData: pkg, imageAction, children }: 
             <HotelIcon className="w-10 h-10" aria-hidden="true" />
           </div>
         )}
-        {imageAction && <div className="absolute top-3 left-3">{imageAction}</div>}
+        {(imageAction || statusBadge) && (
+          <div className="absolute top-3 left-3 flex items-center gap-2">
+            {imageAction}
+            {statusBadge}
+          </div>
+        )}
         <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-full text-xs font-bold text-primary shadow-xs">
           USD ${pkg.price}
         </div>
@@ -48,7 +54,7 @@ export function PackageSummaryCard({ packageData: pkg, imageAction, children }: 
               Fechas:
             </span>
             <span className="font-medium text-slate-700 text-right">
-              {pkg.startDate.toLocaleDateString("es-AR")} - {pkg.endDate.toLocaleDateString("es-AR")} ({pkg.nights}n)
+              {pkg.startDate.toLocaleDateString("es-AR")} - {pkg.endDate.toLocaleDateString("es-AR")} ({pkg.nights} {pkg.nights === 1 ? "noche" : "noches"})
             </span>
           </div>
           <div className="flex items-center justify-between gap-2">
