@@ -1,12 +1,14 @@
 import { Header } from "../components/layout/header"
 import { MyTripsView } from "../components/trip/MyTripsView"
 import { ReviewModal } from "../components/trip/ReviewModal"
-import { handleViewDetails } from "../router/packageDetails"
+import { usePackageDetailsModal } from "../hooks/usePackageDetailsModal"
+import { PackageDetailsModal } from "../components/package/PackageDetailsModal"
 import { useMyTrips } from "../hooks/useMyTrips"
 import { useReviewModal } from "../hooks/useReviewModal"
 import { useHeader } from "../hooks/useHeader"
 
 export default function MyTripsPage() {
+  const detailsModal = usePackageDetailsModal()
   const headerProps = useHeader()
   const {
     currentTrips,
@@ -41,10 +43,11 @@ export default function MyTripsPage() {
         onTabChange={onTabChange}
         onRetry={onRetry}
         onExplore={headerProps.onNavigateHome}
-        onViewDetails={handleViewDetails}
+        onViewDetails={detailsModal.openDetails}
         onReviewClick={reviewModal.openReviewModal}
         onPageChange={onPageChange}
       />
+      <PackageDetailsModal packageData={detailsModal.selectedPackage} onClose={detailsModal.closeDetails} />
       <ReviewModal
         isOpen={reviewModal.isOpen}
         trip={reviewModal.selectedTrip}

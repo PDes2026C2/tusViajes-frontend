@@ -14,6 +14,7 @@ export interface HotelResponseDTO {
   name: string
   city: CityDTO
   photoUrl: string
+  services?: string | null
 }
 
 export interface FlightDTO {
