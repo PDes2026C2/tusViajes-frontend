@@ -116,9 +116,11 @@ test.describe('Travel Packages and Favorites', () => {
     const barilocheFavoriteButton = barilocheCard.getByRole('button', { name: /favoritos/i });
 
     await expect(barilocheFavoriteButton).toBeVisible();
-    await expect(barilocheFavoriteButton).toBeDisabled();
     await expect(barilocheFavoriteButton).toHaveAttribute('aria-pressed', 'true');
     await expect(barilocheFavoriteButton).toHaveText(/En favoritos/i);
+    
+    await expect(barilocheFavoriteButton).toBeDisabled();
+
 
     // Another package not in favorites is still available to be added
     const cataratasCard = page.locator('article', { hasText: 'Aventura en Cataratas' });
