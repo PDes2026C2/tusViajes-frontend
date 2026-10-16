@@ -7,11 +7,11 @@ import { useHeader } from "../hooks/useHeader"
 import { useAuth } from "../hooks/useAuth"
 import { useFavoritesStore } from "../stores/favorites"
 import { favoritesDataSource } from "../datasources/favorites"
-import { favoritePackage, favoritePackageDTO } from "../tests/fixtures/package"
-import { handleViewDetails } from "./packageDetails"
+import { buyerDataSource } from "../datasources/buyer"
+import { favoritePackageDTO } from "../tests/fixtures/package"
 
 vi.mock("../hooks/useAuth", () => ({ useAuth: vi.fn() }))
-vi.mock("./packageDetails", () => ({ handleViewDetails: vi.fn() }))
+vi.mock("../datasources/buyer", () => ({ buyerDataSource: { hasPurchasedPackage: vi.fn() } }))
 vi.mock("../datasources/favorites", () => ({
   favoritesDataSource: { getFavorites: vi.fn(), addFavorite: vi.fn(), removeFavorite: vi.fn() },
 }))
@@ -38,6 +38,7 @@ describe("Favorites navigation", () => {
     } as unknown as ReturnType<typeof useAuth>)
     vi.mocked(favoritesDataSource.getFavorites).mockResolvedValue([favoritePackageDTO])
     vi.mocked(favoritesDataSource.removeFavorite).mockResolvedValue(undefined)
+    vi.mocked(buyerDataSource.hasPurchasedPackage).mockResolvedValue(false)
   })
 
   it("opens the saved packages from the navbar heart", async () => {
@@ -81,18 +82,26 @@ describe("Favorites navigation", () => {
     expect(favoritesDataSource.getFavorites).toHaveBeenCalledTimes(2)
   })
 
-  it("uses the shared package detail action without opening a modal or changing routes", async () => {
+  it("opens package details from favorites without changing routes and closes them", async () => {
     // arrange
     window.history.replaceState(null, "", "/favorites")
     render(<AppRouter />)
+    const detailsButton = await screen.findByRole("button", { name: "Ver detalle" })
+    detailsButton.focus()
 
     // act
-    fireEvent.click(await screen.findByRole("button", { name: "Ver detalle" }))
+    fireEvent.click(detailsButton)
 
     // assert
-    expect(handleViewDetails).toHaveBeenCalledWith(favoritePackage)
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    expect(await screen.findByRole("dialog", { name: favoritePackageDTO.name })).toBeInTheDocument()
     expect(window.location.pathname).toBe("/favorites")
+
+    // act
+    fireEvent.click(screen.getByRole("button", { name: "Cerrar detalle" }))
+
+    // assert
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(screen.getByRole("button", { name: "Ver detalle" })).toHaveFocus()
   })
 
   it("removes the last saved card through the heart and shows the empty view", async () => {

@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { toast } from "react-toastify"
 import { Home } from "./home"
@@ -8,6 +8,7 @@ import { favoritesDataSource } from "../datasources/favorites"
 import { favoritePackage, favoritePackageDTO } from "../tests/fixtures/package"
 
 vi.mock("../hooks/useAuth", () => ({ useAuth: vi.fn() }))
+vi.mock("react-router-dom", () => ({ useNavigate: () => vi.fn() }))
 vi.mock("../hooks/useHeader", () => ({ useHeader: () => ({}) }))
 vi.mock("../hooks/useSearch", () => ({
   useSearch: () => ({
@@ -39,6 +40,29 @@ describe("Home favorites", () => {
   afterEach(() => {
     cleanup()
     vi.useRealTimers()
+  })
+
+  it("opens package details for a visitor and returns to the catalog when closed", async () => {
+    // arrange
+    vi.useRealTimers()
+    vi.mocked(useAuth).mockReturnValue({
+      isAuthenticated: false, user: null, modal: { open: vi.fn() },
+    } as unknown as ReturnType<typeof useAuth>)
+    render(<Home />)
+
+    // act
+    fireEvent.click(screen.getByRole("button", { name: "Ver detalle" }))
+
+    // assert
+    expect(await screen.findByRole("dialog", { name: favoritePackage.name })).toBeInTheDocument()
+    expect(favoritesDataSource.getFavorites).not.toHaveBeenCalled()
+
+    // act
+    fireEvent.click(screen.getByRole("button", { name: "Cerrar detalle" }))
+
+    // assert
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    expect(screen.getByRole("button", { name: "Ver detalle" })).toBeInTheDocument()
   })
 
   it("removes a saved package from home and allows adding it again", async () => {

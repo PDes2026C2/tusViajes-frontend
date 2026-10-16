@@ -4,9 +4,11 @@ import { PackageList } from "@/components/package/package-list"
 import { useHeader } from "@/hooks/useHeader"
 import { useSearch } from "@/hooks/useSearch"
 import { useFavorites } from "@/hooks/useFavorites"
-import { handleViewDetails } from "@/router/packageDetails"
+import { usePackageDetailsModal } from "../hooks/usePackageDetailsModal"
+import { PurchasePackageDetailsModal } from "../components/package/PurchasePackageDetailsModal"
 
 export function Home() {
+  const detailsModal = usePackageDetailsModal()
   const headerProps = useHeader()
   const favoritesProps = useFavorites({ minimumLoadingMs: 1000 })
   const {
@@ -89,10 +91,11 @@ export function Home() {
           currentPage={page}
           totalPages={totalPages}
           totalElements={totalElements}
-          onViewDetails={handleViewDetails}
+          onViewDetails={detailsModal.openDetails}
           onPageChange={onChangePage}
         />
       </main>
+      <PurchasePackageDetailsModal packageData={detailsModal.selectedPackage} onClose={detailsModal.closeDetails} />
     </div>
   )
 }

@@ -1,10 +1,12 @@
 import { Header } from "../components/layout/header"
 import { FavoritesView } from "../components/package/FavoritesView"
-import { handleViewDetails } from "../router/packageDetails"
+import { usePackageDetailsModal } from "../hooks/usePackageDetailsModal"
+import { PurchasePackageDetailsModal } from "../components/package/PurchasePackageDetailsModal"
 import { useFavorites } from "../hooks/useFavorites"
 import { useHeader } from "../hooks/useHeader"
 
 export default function FavoritesPage() {
+  const detailsModal = usePackageDetailsModal()
   const headerProps = useHeader()
   const {
     favoritePackages, isLoadingFavorites, favoritesError, onRetryFavorites,
@@ -22,8 +24,9 @@ export default function FavoritesPage() {
         onExplore={headerProps.onNavigateHome}
         pendingFavoriteIds={pendingFavoriteIds}
         onRemoveFavorite={onRemoveFavorite}
-        onViewDetails={handleViewDetails}
+        onViewDetails={detailsModal.openDetails}
       />
+      <PurchasePackageDetailsModal packageData={detailsModal.selectedPackage} onClose={detailsModal.closeDetails} />
     </div>
   )
 }

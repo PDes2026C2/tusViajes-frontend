@@ -112,9 +112,6 @@ export function TravelPackageCard({
                 <span className="text-xs font-bold uppercase tracking-wider text-sky-700">
                   Vuelo de Ida
                 </span>
-                <span className="text-[11px] text-slate-400">
-                  ({departureFlight.flightNumber})
-                </span>
               </div>
               <span className="text-sm font-semibold text-slate-800 truncate">
                 {departureOrigin} → {departureDest}
@@ -135,9 +132,6 @@ export function TravelPackageCard({
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
                   Vuelo de Vuelta
-                </span>
-                <span className="text-[11px] text-slate-400">
-                  ({arrivalFlight.flightNumber})
                 </span>
               </div>
               <span className="text-sm font-semibold text-slate-800 truncate">
