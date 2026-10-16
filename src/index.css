@@ -131,6 +131,7 @@ button, [role=button] {
   letter-spacing: 0.01em;
   color: #334155;
   padding: 2px 24px 2px 4px;
+  white-space: pre-line;
 }
 
 .Toastify__toast-icon {

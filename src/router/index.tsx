@@ -2,6 +2,8 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import PublicRoute from "./guards/publicRoute";
 import ProtectedRoute from "./guards/protectedRoute";
 import Home from "../pages/home";
+import FavoritesPage from "../pages/favorites";
+import MyTripsPage from "../pages/myTrips";
 import LoginPage from "../pages/login";
 import AdminPanelPage from "../pages/adminPanel";
 import AgencyPanelPage from "../pages/agencyPanel";
@@ -32,7 +34,8 @@ export function AppRouter() {
 
                 {/*Rutas para Buyer */}
                 <Route element = {<ProtectedRoute allowedRoles={['BUYER']}/>}>
-                    <Route path="/my-trips" element = { <h1> ruta privada para buyer </h1> } />
+                    <Route path="/favorites" element={<FavoritesPage />} />
+                    <Route path="/my-trips" element = { <MyTripsPage /> } />
                 </Route>
 
                 {/*Rutas para Admin */}

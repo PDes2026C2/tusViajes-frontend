@@ -106,20 +106,90 @@ describe("TravelPackageCard component", () => {
     expect(favoriteButton).toHaveAttribute("aria-pressed", "false")
   })
 
-  it("shows an existing favorite as pressed and prevents adding it again", () => {
+  it("shows an existing favorite as pressed and removes it without adding it again", () => {
     // arrange
     const onAddFavorite = vi.fn()
-    render(<TravelPackageCard packageData={mockPackage} canAddFavorite isFavorite onAddFavorite={onAddFavorite} />)
-    const favoriteButton = screen.getByRole("button", { name: `Guardado en favoritos: ${mockPackage.name}` })
+    const onRemoveFavorite = vi.fn()
+    render(<TravelPackageCard packageData={mockPackage} canAddFavorite isFavorite onAddFavorite={onAddFavorite} onRemoveFavorite={onRemoveFavorite} />)
+    const favoriteButton = screen.getByRole("button", { name: `Quitar de favoritos: ${mockPackage.name}` })
 
     // act
     fireEvent.click(favoriteButton)
 
     // assert
     expect(favoriteButton).toHaveAttribute("aria-pressed", "true")
-    expect(favoriteButton).toBeDisabled()
+    expect(favoriteButton).toBeEnabled()
     expect(screen.getByText("En favoritos")).toBeInTheDocument()
     expect(onAddFavorite).not.toHaveBeenCalled()
+    expect(onRemoveFavorite).toHaveBeenCalledWith(mockPackage)
+  })
+
+  it.each(["hover", "focus"])("offers removal on %s and restores the saved label when leaving", (interaction) => {
+    // arrange
+    const onRemoveFavorite = vi.fn()
+
+    // act
+    render(<TravelPackageCard packageData={mockPackage} canAddFavorite isFavorite onRemoveFavorite={onRemoveFavorite} />)
+
+    // assert
+    const favoriteButton = screen.getByRole("button", { name: `Quitar de favoritos: ${mockPackage.name}` })
+    expect(favoriteButton).toHaveTextContent("En favoritos")
+
+    // act
+    if (interaction === "hover") fireEvent.mouseEnter(favoriteButton)
+    else fireEvent.focus(favoriteButton)
+
+    // assert
+    expect(favoriteButton).toHaveTextContent("Quitar de favoritos")
+
+    // act
+    if (interaction === "hover") fireEvent.mouseLeave(favoriteButton)
+    else fireEvent.blur(favoriteButton)
+
+    // assert
+    expect(favoriteButton).toHaveTextContent("En favoritos")
+    expect(onRemoveFavorite).not.toHaveBeenCalled()
+  })
+
+  it("keeps the removal label while keyboard focus remains after the pointer leaves", () => {
+    // arrange
+    render(<TravelPackageCard packageData={mockPackage} canAddFavorite isFavorite onRemoveFavorite={vi.fn()} />)
+    const favoriteButton = screen.getByRole("button", { name: `Quitar de favoritos: ${mockPackage.name}` })
+
+    // act
+    fireEvent.focus(favoriteButton)
+    fireEvent.mouseEnter(favoriteButton)
+    fireEvent.mouseLeave(favoriteButton)
+
+    // assert
+    expect(favoriteButton).toHaveTextContent("Quitar de favoritos")
+  })
+
+  it("blocks repeated removal clicks while the request is pending", () => {
+    // arrange
+    const onAddFavorite = vi.fn()
+    const onRemoveFavorite = vi.fn()
+    render(
+      <TravelPackageCard
+        packageData={mockPackage}
+        canAddFavorite
+        isFavorite
+        isUpdatingFavorite
+        onAddFavorite={onAddFavorite}
+        onRemoveFavorite={onRemoveFavorite}
+      />,
+    )
+    const favoriteButton = screen.getByRole("button", { name: `Quitar de favoritos: ${mockPackage.name}` })
+
+    // act
+    fireEvent.click(favoriteButton)
+
+    // assert
+    expect(favoriteButton).toBeDisabled()
+    expect(favoriteButton).toHaveAttribute("aria-busy", "true")
+    expect(favoriteButton).toHaveTextContent("Cargando...")
+    expect(onAddFavorite).not.toHaveBeenCalled()
+    expect(onRemoveFavorite).not.toHaveBeenCalled()
   })
 
   it("disables the favorite action while saving the package", () => {
@@ -129,7 +199,7 @@ describe("TravelPackageCard component", () => {
       <TravelPackageCard
         packageData={mockPackage}
         canAddFavorite
-        isAddingFavorite
+        isUpdatingFavorite
         onAddFavorite={onAddFavorite}
       />
     )
@@ -141,7 +211,7 @@ describe("TravelPackageCard component", () => {
     // assert
     expect(favoriteButton).toBeDisabled()
     expect(favoriteButton).toHaveAttribute("aria-busy", "true")
-    expect(screen.getByText("Guardando...")).toBeInTheDocument()
+    expect(screen.getByText("Cargando...")).toBeInTheDocument()
     expect(onAddFavorite).not.toHaveBeenCalled()
   })
 
