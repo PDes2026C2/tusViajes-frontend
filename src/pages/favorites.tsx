@@ -1,7 +1,7 @@
 import { Header } from "../components/layout/header"
 import { FavoritesView } from "../components/package/FavoritesView"
 import { usePackageDetailsModal } from "../hooks/usePackageDetailsModal"
-import { PackageDetailsModal } from "../components/package/PackageDetailsModal"
+import { PurchasePackageDetailsModal } from "../components/package/PurchasePackageDetailsModal"
 import { useFavorites } from "../hooks/useFavorites"
 import { useHeader } from "../hooks/useHeader"
 
@@ -26,7 +26,7 @@ export default function FavoritesPage() {
         onRemoveFavorite={onRemoveFavorite}
         onViewDetails={detailsModal.openDetails}
       />
-      <PackageDetailsModal packageData={detailsModal.selectedPackage} onClose={detailsModal.closeDetails} />
+      <PurchasePackageDetailsModal packageData={detailsModal.selectedPackage} onClose={detailsModal.closeDetails} />
     </div>
   )
 }

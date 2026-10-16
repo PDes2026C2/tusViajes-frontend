@@ -7,9 +7,11 @@ import { useHeader } from "../hooks/useHeader"
 import { useAuth } from "../hooks/useAuth"
 import { useFavoritesStore } from "../stores/favorites"
 import { favoritesDataSource } from "../datasources/favorites"
+import { buyerDataSource } from "../datasources/buyer"
 import { favoritePackageDTO } from "../tests/fixtures/package"
 
 vi.mock("../hooks/useAuth", () => ({ useAuth: vi.fn() }))
+vi.mock("../datasources/buyer", () => ({ buyerDataSource: { hasPurchasedPackage: vi.fn() } }))
 vi.mock("../datasources/favorites", () => ({
   favoritesDataSource: { getFavorites: vi.fn(), addFavorite: vi.fn(), removeFavorite: vi.fn() },
 }))
@@ -36,6 +38,7 @@ describe("Favorites navigation", () => {
     } as unknown as ReturnType<typeof useAuth>)
     vi.mocked(favoritesDataSource.getFavorites).mockResolvedValue([favoritePackageDTO])
     vi.mocked(favoritesDataSource.removeFavorite).mockResolvedValue(undefined)
+    vi.mocked(buyerDataSource.hasPurchasedPackage).mockResolvedValue(false)
   })
 
   it("opens the saved packages from the navbar heart", async () => {

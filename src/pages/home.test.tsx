@@ -8,6 +8,7 @@ import { favoritesDataSource } from "../datasources/favorites"
 import { favoritePackage, favoritePackageDTO } from "../tests/fixtures/package"
 
 vi.mock("../hooks/useAuth", () => ({ useAuth: vi.fn() }))
+vi.mock("react-router-dom", () => ({ useNavigate: () => vi.fn() }))
 vi.mock("../hooks/useHeader", () => ({ useHeader: () => ({}) }))
 vi.mock("../hooks/useSearch", () => ({
   useSearch: () => ({
