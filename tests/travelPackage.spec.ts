@@ -89,17 +89,19 @@ test.describe('Travel Packages and Favorites', () => {
 
     await favoriteButton.click();
 
-    expect(addFavoriteCalled).toBe(true);
+    await expect.poll(() => addFavoriteCalled).toBe(true);
 
     const addedButton = barilocheCard.getByRole('button', { name: /favoritos/i });
-    await expect(addedButton).toBeDisabled();
+    await expect(addedButton).toBeEnabled();
     await expect(addedButton).toHaveAttribute('aria-pressed', 'true');
-    await expect(addedButton).toHaveText(/En favoritos/i);
+    await expect(addedButton).toHaveText('Quitar de favoritos');
 
-    await expect(page.getByText('Paquete agregado a tus favoritos.')).toBeVisible();
+    // Moving mouse away restores "En favoritos"
+    await page.mouse.move(0, 0);
+    await expect(addedButton).toHaveText('En favoritos');
   });
 
-  test('Package is already in favorites on initial load and cannot be clicked', async ({ page }) => {
+  test('Package is already in favorites on initial load and shows remove option on hover', async ({ page }) => {
     await loginAsUser(page);
 
     await page.route('**/api/buyers/me/favorites', async (route) => {
@@ -116,17 +118,22 @@ test.describe('Travel Packages and Favorites', () => {
     const barilocheFavoriteButton = barilocheCard.getByRole('button', { name: /favoritos/i });
 
     await expect(barilocheFavoriteButton).toBeVisible();
+    await expect(barilocheFavoriteButton).toBeEnabled();
     await expect(barilocheFavoriteButton).toHaveAttribute('aria-pressed', 'true');
-    await expect(barilocheFavoriteButton).toHaveText(/En favoritos/i);
-    
-    await expect(barilocheFavoriteButton).toBeDisabled();
+    await expect(barilocheFavoriteButton).toHaveText('En favoritos');
 
+    await barilocheFavoriteButton.hover();
+    await expect(barilocheFavoriteButton).toHaveText('Quitar de favoritos');
+
+    await page.mouse.move(0, 0);
+    await expect(barilocheFavoriteButton).toHaveText('En favoritos');
 
     // Another package not in favorites is still available to be added
     const cataratasCard = page.locator('article', { hasText: 'Aventura en Cataratas' });
     const cataratasFavoriteButton = cataratasCard.getByRole('button', { name: 'Agregar a favoritos' });
     await expect(cataratasFavoriteButton).toBeVisible();
     await expect(cataratasFavoriteButton).toBeEnabled();
+    await expect(cataratasFavoriteButton).toHaveAttribute('aria-pressed', 'false');
   });
 
   test('Shows error notification and keeps button enabled when adding favorite fails', async ({ page }) => {
@@ -211,10 +218,12 @@ test.describe('Travel Packages and Favorites', () => {
     await favoriteButton.click();
 
     const addedButton = barilocheCard.getByRole('button', { name: /favoritos/i });
-    await expect(addedButton).toBeDisabled();
+    await expect(addedButton).toBeEnabled();
     await expect(addedButton).toHaveAttribute('aria-pressed', 'true');
-    await expect(addedButton).toHaveText(/En favoritos/i);
-    await expect(page.getByText('Paquete agregado a tus favoritos.')).toBeVisible();
+    await expect(addedButton).toHaveText('Quitar de favoritos');
+
+    await page.mouse.move(0, 0);
+    await expect(addedButton).toHaveText('En favoritos');
   });
 
   test('Agency user cannot see favorite buttons', async ({ page }) => {
