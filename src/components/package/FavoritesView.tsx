@@ -1,4 +1,4 @@
-import { ArrowRight, Heart, Loader2, RefreshCw } from "lucide-react"
+import { ArrowRight, CheckCircle2, Clock, Heart, Loader2, RefreshCw } from "lucide-react"
 import type { TravelPackage } from "../../models/package"
 import { Button } from "../ui/button"
 import { PackageSummaryCard } from "./PackageSummaryCard"
@@ -20,13 +20,20 @@ export function FavoritesView({
 }: FavoritesViewProps) {
   return (
     <main className="mx-auto max-w-6xl w-full px-4 sm:px-6 py-8 flex flex-col gap-6">
-      <div className="flex items-center gap-2.5">
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Paquetes guardados</h1>
-        {!isLoading && !error && packages.length > 0 && (
-          <span className="bg-sky-50 border border-sky-200/60 text-sky-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-            {packages.length} {packages.length === 1 ? "paquete" : "paquetes"}
-          </span>
-        )}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-100">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Paquetes guardados</h1>
+            {!isLoading && !error && packages.length > 0 && (
+              <span className="bg-sky-50 border border-sky-200/60 text-sky-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                {packages.length} {packages.length === 1 ? "paquete" : "paquetes"}
+              </span>
+            )}
+          </div>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Accedé y gestioná los paquetes que guardaste para tus próximas vacaciones
+          </p>
+        </div>
       </div>
 
       {isLoading ? (
@@ -59,44 +66,61 @@ export function FavoritesView({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {packages.map((pkg) => (
-            <PackageSummaryCard
-              key={pkg.id}
-              packageData={{
-                ...pkg,
-                startDate: pkg.initialDate,
-                endDate: pkg.finalDate,
-                returnFlight: pkg.arrivalFlight,
-              }}
-              imageAction={(
+          {packages.map((pkg) => {
+            const isAvailable = new Date(pkg.initialDate).getTime() > Date.now()
+
+            return (
+              <PackageSummaryCard
+                key={pkg.id}
+                packageData={{
+                  ...pkg,
+                  startDate: pkg.initialDate,
+                  endDate: pkg.finalDate,
+                  returnFlight: pkg.arrivalFlight,
+                }}
+                statusBadge={
+                  isAvailable ? (
+                    <span className="inline-flex items-center gap-1 bg-emerald-600/90 backdrop-blur-xs text-white px-2.5 py-1 rounded-full text-xs font-semibold shadow-xs">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-200" aria-hidden="true" />
+                      Disponible
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 bg-slate-900/80 backdrop-blur-xs text-white px-2.5 py-1 rounded-full text-xs font-semibold shadow-xs">
+                      <Clock className="w-3.5 h-3.5 text-slate-300" aria-hidden="true" />
+                      No disponible
+                    </span>
+                  )
+                }
+                imageAction={(
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    aria-label={`Quitar ${pkg.name} de favoritos`}
+                    title="Quitar de favoritos"
+                    disabled={pendingFavoriteIds.includes(pkg.id)}
+                    aria-busy={pendingFavoriteIds.includes(pkg.id)}
+                    onClick={() => onRemoveFavorite(pkg)}
+                    className="rounded-full border-white/80 bg-white/95 text-primary shadow-xs hover:bg-white hover:text-primary/80 cursor-pointer"
+                  >
+                    {pendingFavoriteIds.includes(pkg.id)
+                      ? <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                      : <Heart className="size-4 fill-current" aria-hidden="true" />}
+                  </Button>
+                )}
+              >
                 <Button
                   type="button"
                   variant="outline"
-                  size="icon"
-                  aria-label={`Quitar ${pkg.name} de favoritos`}
-                  title="Quitar de favoritos"
-                  disabled={pendingFavoriteIds.includes(pkg.id)}
-                  aria-busy={pendingFavoriteIds.includes(pkg.id)}
-                  onClick={() => onRemoveFavorite(pkg)}
-                  className="rounded-full border-white/80 bg-white/95 text-primary shadow-xs hover:bg-white hover:text-primary/80 cursor-pointer"
+                  onClick={() => onViewDetails(pkg)}
+                  className="rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 text-xs px-3 py-1.5 h-auto cursor-pointer"
                 >
-                  {pendingFavoriteIds.includes(pkg.id)
-                    ? <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                    : <Heart className="size-4 fill-current" aria-hidden="true" />}
+                  Ver detalle
+                  <ArrowRight className="size-3.5" aria-hidden="true" />
                 </Button>
-              )}
-            >
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onViewDetails(pkg)}
-                className="rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 text-xs px-3 py-1.5 h-auto cursor-pointer"
-              >
-                Ver detalle
-                <ArrowRight className="size-3.5" aria-hidden="true" />
-              </Button>
-            </PackageSummaryCard>
-          ))}
+              </PackageSummaryCard>
+            )
+          })}
         </div>
       )}
     </main>
