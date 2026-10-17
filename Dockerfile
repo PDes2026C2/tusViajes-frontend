@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_VERSION=20.18.0-alpine
+ARG NODE_VERSION=22-alpine
 
 # ==========================================
 # 1. Builder Stage
