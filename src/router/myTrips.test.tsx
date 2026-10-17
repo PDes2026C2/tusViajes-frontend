@@ -7,13 +7,11 @@ import { useAuth } from "../hooks/useAuth"
 import { useMyTripsStore } from "../stores/myTrips"
 import { buyerDataSource } from "../datasources/buyer"
 import { reviewDataSource } from "../datasources/review"
-import { favoritePackage, favoritePackageDTO } from "../tests/fixtures/package"
-import { handleViewDetails } from "./packageDetails"
+import { favoritePackageDTO } from "../tests/fixtures/package"
 import type { BuyerPurchasesPageDTO } from "../types/buyer"
 import type { TravelPackageResponseDTO } from "../types/package"
 
 vi.mock("../hooks/useAuth", () => ({ useAuth: vi.fn() }))
-vi.mock("./packageDetails", () => ({ handleViewDetails: vi.fn() }))
 vi.mock("../datasources/buyer", () => ({
   buyerDataSource: { getMyPurchases: vi.fn() },
 }))
@@ -118,7 +116,7 @@ describe("MyTrips navigation and page integration", () => {
     expect(buyerDataSource.getMyPurchases).toHaveBeenCalledTimes(2)
   })
 
-  it("triggers package detail action from the trip card", async () => {
+  it("opens package details from the trip card without changing routes", async () => {
     // arrange
     window.history.replaceState(null, "", "/my-trips")
     render(<AppRouter />)
@@ -127,7 +125,8 @@ describe("MyTrips navigation and page integration", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Ver detalle" }))
 
     // assert
-    expect(handleViewDetails).toHaveBeenCalledWith(favoritePackage)
+    expect(await screen.findByRole("dialog", { name: favoritePackageDTO.name })).toBeInTheDocument()
+    expect(window.location.pathname).toBe("/my-trips")
   })
 
   it("redirects unauthenticated visitor to login when opening /my-trips directly", async () => {

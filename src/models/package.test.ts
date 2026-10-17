@@ -55,16 +55,21 @@ describe("package models and mappers", () => {
         countryDTO: { isoCode: "AR", name: "Argentina" },
       },
       photoUrl: "https://example.com/hotel.jpg",
+      services: "Desayuno, Wi-Fi, recepción 24 horas",
+    }
+    const expectedHotel = {
+      id: 40,
+      name: "Hotel de los Andes",
+      city: { id: 3, name: "Mendoza", country: { isoCode: "AR", name: "Argentina" } },
+      photoUrl: "https://example.com/hotel.jpg",
+      services: "Desayuno, Wi-Fi, recepción 24 horas",
     }
 
     // act
     const hotel = packageMappers.mapHotelDTOToModel(hotelDTO)
 
     // assert
-    expect(hotel.id).toBe(40)
-    expect(hotel.name).toBe("Hotel de los Andes")
-    expect(hotel.city.name).toBe("Mendoza")
-    expect(hotel.photoUrl).toBe("https://example.com/hotel.jpg")
+    expect(hotel).toEqual(expectedHotel)
   })
 
   it("maps TravelPackageResponseDTO with full flight and hotel data to TravelPackage domain model", () => {
