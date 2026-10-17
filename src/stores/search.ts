@@ -4,6 +4,7 @@ import { packageDataSource } from "../datasources/package"
 import { locationMappers, type City, type Country } from "../models/location"
 import { packageMappers, type TravelPackage } from "../models/package"
 import type { SearchPackageCriteria } from "../models/search"
+import { toast } from "react-toastify"
 
 export interface SearchStoreState {
   countries: Country[]
@@ -18,7 +19,6 @@ export interface SearchStoreState {
   isLoadingOriginCities: boolean
   isLoadingDestinationCities: boolean
   isSearching: boolean
-  searchError: string | null
   lastSearchCriteria: SearchPackageCriteria | null
 
   fetchCountries: () => Promise<void>
@@ -42,7 +42,6 @@ export const useSearchStore = create<SearchStoreState>((set) => ({
   isLoadingOriginCities: false,
   isLoadingDestinationCities: false,
   isSearching: false,
-  searchError: null,
   lastSearchCriteria: null,
 
   fetchCountries: async () => {
@@ -53,7 +52,7 @@ export const useSearchStore = create<SearchStoreState>((set) => ({
         countries: dtos.map(locationMappers.mapCountryDTOToModel),
       })
     } catch (error) {
-      console.error("Failed to fetch countries", error)
+      toast.error("Hubo un problema al obtener los paises")
     } finally {
       set({ isLoadingCountries: false })
     }
@@ -67,7 +66,7 @@ export const useSearchStore = create<SearchStoreState>((set) => ({
         originCities: dtos.map(locationMappers.mapCityDTOToModel),
       })
     } catch (error) {
-      console.error("Failed to fetch origin cities", error)
+      toast.error("Hubo un problema al obtener las ciudades")
     } finally {
       set({ isLoadingOriginCities: false })
     }
@@ -81,7 +80,7 @@ export const useSearchStore = create<SearchStoreState>((set) => ({
         destinationCities: dtos.map(locationMappers.mapCityDTOToModel),
       })
     } catch (error) {
-      console.error("Failed to fetch destination cities", error)
+      toast.error("Hubo un problema al obtener las ciudades")
     } finally {
       set({ isLoadingDestinationCities: false })
     }
@@ -97,7 +96,7 @@ export const useSearchStore = create<SearchStoreState>((set) => ({
       ...criteria,
     }
 
-    set({ isSearching: true, searchError: null, lastSearchCriteria: finalCriteria })
+    set({ isSearching: true, lastSearchCriteria: finalCriteria })
     try {
       const pageDTO = await packageDataSource.searchPackages(finalCriteria)
       const pageModel = packageMappers.mapPageDTOToModel(pageDTO)
@@ -111,8 +110,8 @@ export const useSearchStore = create<SearchStoreState>((set) => ({
         isSearching: false,
       })
     } catch (error: any) {
+      toast.error("Hubo un error al buscar paquetes. Intente mas tarde.")
       set({
-        searchError: error?.message || "Error al buscar paquetes",
         isSearching: false,
       })
       throw error

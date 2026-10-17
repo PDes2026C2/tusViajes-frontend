@@ -1,0 +1,58 @@
+{
+  "content": [
+    {
+      "id": 501,
+      "flightNumber": "AR-1300",
+      "airline": "Aerolíneas Argentinas",
+      "originCity": {
+        "id": 1,
+        "name": "Buenos Aires",
+        "countryDTO": {
+          "isoCode": "AR",
+          "name": "Argentina"
+        }
+      },
+      "destinationCity": {
+        "id": 6,
+        "name": "Miami",
+        "countryDTO": {
+          "isoCode": "US",
+          "name": "Estados Unidos"
+        }
+      },
+      "departureDate": "2026-11-01T10:00:00.000Z",
+      "arrivalDate": "2026-11-01T18:00:00.000Z",
+      "capacity": 200,
+      "availableSeats": 45,
+      "price": 600
+    },
+    {
+      "id": 502,
+      "flightNumber": "AR-1301",
+      "airline": "Aerolíneas Argentinas",
+      "originCity": {
+        "id": 6,
+        "name": "Miami",
+        "countryDTO": {
+          "isoCode": "US",
+          "name": "Estados Unidos"
+        }
+      },
+      "destinationCity": {
+        "id": 1,
+        "name": "Buenos Aires",
+        "countryDTO": {
+          "isoCode": "AR",
+          "name": "Argentina"
+        }
+      },
+      "departureDate": "2026-11-08T10:00:00.000Z",
+      "arrivalDate": "2026-11-08T18:00:00.000Z",
+      "capacity": 200,
+      "availableSeats": 40,
+      "price": 600
+    }
+  ],
+  "totalElements": 2,
+  "totalPages": 1
+}

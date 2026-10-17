@@ -23,7 +23,6 @@ export function useSearch() {
     isLoadingOriginCities,
     isLoadingDestinationCities,
     isSearching,
-    searchError,
     fetchCountries,
     fetchOriginCities,
     fetchDestinationCities,
@@ -170,6 +169,5 @@ export function useSearch() {
 
     // Form metadata
     errors,
-    searchError,
   }
 }

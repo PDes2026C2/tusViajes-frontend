@@ -1,0 +1,150 @@
+{
+  "content": [
+    {
+      "id": 1,
+      "name": "Escapada a Bariloche",
+      "description": "Disfruta de 5 noches en la Patagonia con hotel céntrico y vuelos incluidos.",
+      "price": 1250.50,
+      "startDate": "2026-11-10",
+      "endDate": "2026-11-15",
+      "hotel": {
+        "id": 101,
+        "name": "Hotel Edelweiss",
+        "city": {
+          "id": 1,
+          "name": "San Carlos de Bariloche",
+          "state": "Río Negro",
+          "country": "Argentina"
+        },
+        "photoUrl": "https://images.example.com/hotels/bariloche.jpg"
+      },
+      "departureFlight": {
+        "id": 501,
+        "flightNumber": "AR1234",
+        "airline": "Aerolíneas Argentinas",
+        "originCity": { "id": 2, "name": "Buenos Aires", "state": "Buenos Aires", "country": "Argentina" },
+        "destinationCity": { "id": 1, "name": "San Carlos de Bariloche", "state": "Río Negro", "country": "Argentina" },
+        "departureTime": "08:00",
+        "departureDate": "2026-11-10",
+        "arrivalTime": "10:30",
+        "arrivalDate": "2026-11-10"
+      },
+      "arrivalFlight": {
+        "id": 502,
+        "flightNumber": "AR1235",
+        "airline": "Aerolíneas Argentinas",
+        "originCity": { "id": 1, "name": "San Carlos de Bariloche", "state": "Río Negro", "country": "Argentina" },
+        "destinationCity": { "id": 2, "name": "Buenos Aires", "state": "Buenos Aires", "country": "Argentina" },
+        "departureTime": "18:00",
+        "departureDate": "2026-11-15",
+        "arrivalTime": "20:30",
+        "arrivalDate": "2026-11-15"
+      },
+      "agency": {
+        "id": 10,
+        "businessName": "Patagonia Tours S.A.",
+        "taxId": "30-71234567-9",
+        "email": "contacto@patagoniatours.com",
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Aventura en Cataratas",
+      "description": "Conoce una de las maravillas del mundo con estadía all-inclusive.",
+      "price": 890.00,
+      "startDate": "2026-12-01",
+      "endDate": "2026-12-05",
+      "hotel": {
+        "id": 102,
+        "name": "Grand Meliá Iguazú",
+        "city": {
+          "id": 3,
+          "name": "Puerto Iguazú",
+          "state": "Misiones",
+          "country": "Argentina"
+        },
+        "photoUrl": "https://images.example.com/hotels/iguazu.jpg"
+      },
+      "departureFlight": {
+        "id": 503,
+        "flightNumber": "FO4321",
+        "airline": "Flybondi",
+        "originCity": { "id": 2, "name": "Buenos Aires", "state": "Buenos Aires", "country": "Argentina" },
+        "destinationCity": { "id": 3, "name": "Puerto Iguazú", "state": "Misiones", "country": "Argentina" },
+        "departureTime": "09:30",
+        "departureDate": "2026-12-01",
+        "arrivalTime": "11:15",
+        "arrivalDate": "2026-12-01"
+      },
+      "arrivalFlight": {
+        "id": 504,
+        "flightNumber": "FO4322",
+        "airline": "Flybondi",
+        "originCity": { "id": 3, "name": "Puerto Iguazú", "state": "Misiones", "country": "Argentina" },
+        "destinationCity": { "id": 2, "name": "Buenos Aires", "state": "Buenos Aires", "country": "Argentina" },
+        "departureTime": "16:00",
+        "departureDate": "2026-12-05",
+        "arrivalTime": "17:45",
+        "arrivalDate": "2026-12-05"
+      },
+      "agency": {
+        "id": 11,
+        "businessName": "Norte Excursiones SRL",
+        "taxId": "30-68954123-4",
+        "email": "ventas@norteexcursiones.com",
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Relax en Mendoza",
+      "description": "Recorrido por bodegas y viñedos con cata de vinos incluida.",
+      "price": 950.00,
+      "startDate": "2026-10-20",
+      "endDate": "2026-10-24",
+      "hotel": {
+        "id": 103,
+        "name": "Park Hyatt Mendoza",
+        "city": {
+          "id": 4,
+          "name": "Mendoza",
+          "state": "Mendoza",
+          "country": "Argentina"
+        },
+        "photoUrl": "https://images.example.com/hotels/mendoza.jpg"
+      },
+      "departureFlight": {
+        "id": 505,
+        "flightNumber": "LA8100",
+        "airline": "LATAM Airlines",
+        "originCity": { "id": 2, "name": "Buenos Aires", "state": "Buenos Aires", "country": "Argentina" },
+        "destinationCity": { "id": 4, "name": "Mendoza", "state": "Mendoza", "country": "Argentina" },
+        "departureTime": "12:00",
+        "departureDate": "2026-10-20",
+        "arrivalTime": "13:45",
+        "arrivalDate": "2026-10-20"
+      },
+      "arrivalFlight": {
+        "id": 506,
+        "flightNumber": "LA8101",
+        "airline": "LATAM Airlines",
+        "originCity": { "id": 4, "name": "Mendoza", "state": "Mendoza", "country": "Argentina" },
+        "destinationCity": { "id": 2, "name": "Buenos Aires", "state": "Buenos Aires", "country": "Argentina" },
+        "departureTime": "20:00",
+        "departureDate": "2026-10-24",
+        "arrivalTime": "21:40",
+        "arrivalDate": "2026-10-24"
+      },
+      "agency": {
+        "id": 10,
+        "businessName": "Patagonia Tours S.A.",
+        "taxId": "30-71234567-9",
+        "email": "contacto@patagoniatours.com",
+        "status": "ACTIVE"
+      }
+    }
+  ],
+  "totalElements": 3,
+  "totalPages": 1
+}
