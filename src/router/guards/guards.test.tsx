@@ -38,7 +38,7 @@ describe("Route Guards with useAuth", () => {
       expect(screen.getByText("Página de Login")).toBeDefined()
     })
 
-    it("redirects BUYER user to root /", () => {
+    it("redirects BUYER user to /home", () => {
       // arrange
       const buyer: User = { id: 1, email: "buyer@test.com", role: "BUYER" }
       vi.mocked(useAuth).mockReturnValue({
@@ -53,7 +53,7 @@ describe("Route Guards with useAuth", () => {
             <Route element={<PublicRoute />}>
               <Route path="/login" element={<div>Página de Login</div>} />
             </Route>
-            <Route path="/" element={<div>Home Page</div>} />
+            <Route path="/home" element={<div>Home Page</div>} />
           </Routes>
         </MemoryRouter>
       )

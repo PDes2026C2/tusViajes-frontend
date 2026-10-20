@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useState } from "react"
+import { useLocation } from "react-router-dom"
 import { LoginForm } from "../components/auth/LoginForm"
 import { RegisterAgencyForm } from "../components/auth/RegisterAgencyForm"
 import { RegisterBuyerForm } from "../components/auth/RegisterBuyerForm"
@@ -12,12 +12,9 @@ type PageTab = "login" | "register_buyer" | "register_agency"
 export function LoginPage() {
   const [activeTab, setActiveTab] = useState<PageTab>("login")
   const location = useLocation()
-  const navigate = useNavigate()
   const headerProps = useHeader()
 
   const {
-    user,
-    isAuthenticated,
     isLoading,
     login,
     registerBuyer,
@@ -25,20 +22,7 @@ export function LoginPage() {
   } = useAuth()
 
   // Target path passed from ProtectedRoute (e.g., state="/my-trips")
-  const targetRedirect = (location.state as string) || "/home"
-
-  // If already logged in, redirect immediately according to role
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      if (user.role === "ADMIN") {
-        navigate("/admin/panel", { replace: true })
-      } else if (user.role === "AGENCY") {
-        navigate("/agency/panel", { replace: true })
-      } else {
-        navigate(targetRedirect, { replace: true })
-      }
-    }
-  }, [isAuthenticated, user, navigate, targetRedirect])
+  const targetRedirect = typeof location.state === "string" ? location.state : "/home"
 
   const handleTabChange = (tab: PageTab) => {
     setActiveTab(tab)

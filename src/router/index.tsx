@@ -8,6 +8,7 @@ import LoginPage from "../pages/login";
 import AdminPanelPage from "../pages/adminPanel";
 import AgencyPanelPage from "../pages/agencyPanel";
 import AuthModal from "../components/auth/AuthModal";
+import UnauthorizedPage from "../pages/unauthorized";
 
 export function AppRouter() {
     return (
@@ -19,6 +20,7 @@ export function AppRouter() {
 
                 {/* Rutas publicas */}
                 <Route path="/home" element = { <Home/> }/>
+                <Route path="/unauthorized" element={<UnauthorizedPage />} />
                 <Route path="/agency/:id" element = { <h1> ruta publica para mostrar el perfil de una agencia </h1> }/>
 
                 {/* Rutas login */}
