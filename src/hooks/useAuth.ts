@@ -29,7 +29,7 @@ export function useAuth() {
   } = useAuthModalStore()
 
   const executeRoleRedirect = (currentUser: User, customRedirect?: string) => {
-    navigate(getAuthRedirectPath(currentUser.role, customRedirect || modalRedirectPath))
+    void navigate(getAuthRedirectPath(currentUser.role, customRedirect || modalRedirectPath))
   }
 
   const handleLogin = async (
