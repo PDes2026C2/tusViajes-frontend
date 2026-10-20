@@ -5,7 +5,7 @@ import { useHeader } from "@/hooks/useHeader"
 import { useSearch } from "@/hooks/useSearch"
 import { useFavorites } from "@/hooks/useFavorites"
 import { usePackageDetailsModal } from "../hooks/usePackageDetailsModal"
-import { PackageDetailsModal } from "../components/package/PackageDetailsModal"
+import { PurchasePackageDetailsModal } from "../components/package/PurchasePackageDetailsModal"
 
 export function Home() {
   const detailsModal = usePackageDetailsModal()
@@ -95,7 +95,7 @@ export function Home() {
           onPageChange={onChangePage}
         />
       </main>
-      <PackageDetailsModal packageData={detailsModal.selectedPackage} onClose={detailsModal.closeDetails} />
+      <PurchasePackageDetailsModal packageData={detailsModal.selectedPackage} onClose={detailsModal.closeDetails} />
     </div>
   )
 }

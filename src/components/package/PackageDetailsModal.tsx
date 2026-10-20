@@ -2,10 +2,12 @@ import { Hotel as HotelIcon, Plane, X } from "lucide-react"
 import { useState } from "react"
 import type { Flight, TravelPackage } from "../../models/package"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../ui/dialog"
+import { PurchasePackageAction, type PurchasePackageActionProps } from "./PurchasePackageAction"
 
 interface PackageDetailsModalProps {
   packageData: TravelPackage | null
   onClose: () => void
+  purchase?: PurchasePackageActionProps
 }
 
 const dateFormatter = new Intl.DateTimeFormat("es-AR", { dateStyle: "long" })
@@ -73,19 +75,20 @@ function FlightDetails({ title, flight }: { title: string; flight: Flight }) {
   )
 }
 
-export function PackageDetailsModal({ packageData, onClose }: PackageDetailsModalProps) {
+export function PackageDetailsModal({ packageData, onClose, purchase }: PackageDetailsModalProps) {
   if (!packageData) return null
 
   const pkg = packageData
 
   return (
-    <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
+    <Dialog open onOpenChange={(open) => { if (!open && !purchase?.isPurchasing) onClose() }}>
       <DialogContent aria-modal="true" className="max-w-2xl gap-6">
         <button
           type="button"
           onClick={onClose}
+          disabled={purchase?.isPurchasing}
           aria-label="Cerrar detalle"
-          className="absolute right-4 top-4 rounded-full p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800 cursor-pointer"
+          className="absolute right-4 top-4 rounded-full p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800 cursor-pointer disabled:opacity-50 disabled:cursor-wait"
         >
           <X className="size-5" aria-hidden="true" />
         </button>
@@ -145,6 +148,7 @@ export function PackageDetailsModal({ packageData, onClose }: PackageDetailsModa
             <p className="text-xs text-slate-500">Precio del paquete</p>
             <p className="text-xl font-bold text-primary">{priceFormatter.format(pkg.price)}</p>
           </div>
+          {purchase && <PurchasePackageAction action={purchase} />}
         </div>
       </DialogContent>
     </Dialog>

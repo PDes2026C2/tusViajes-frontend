@@ -1,6 +1,9 @@
+import { endOfDay, format, startOfDay } from "date-fns"
 import type { SearchPackageCriteria } from "../models/search"
 import type { PageResponseDTO, TravelPackageResponseDTO } from "../types/package"
 import publicClient from "./public-client"
+
+const dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
 
 export const packageDataSource = {
   async searchPackages(
@@ -15,10 +18,10 @@ export const packageDataSource = {
     if (criteria.originCityId) params.originCityId = criteria.originCityId
     if (criteria.destinationCountryIso) params.destinationCountryIso = criteria.destinationCountryIso
     if (criteria.destinationCityId) params.destinationCityId = criteria.destinationCityId
-    if (criteria.departureDateRange?.from) params.departureFrom = criteria.departureDateRange.from.toISOString()
-    if (criteria.departureDateRange?.to) params.departureTo = criteria.departureDateRange.to.toISOString()
-    if (criteria.arrivalDateRange?.from) params.arrivalFrom = criteria.arrivalDateRange.from.toISOString()
-    if (criteria.arrivalDateRange?.to) params.arrivalTo = criteria.arrivalDateRange.to.toISOString()
+    if (criteria.departureDateRange?.from) params.departureFrom = format(startOfDay(criteria.departureDateRange.from), dateTimeFormat)
+    if (criteria.departureDateRange?.to) params.departureTo = format(endOfDay(criteria.departureDateRange.to), dateTimeFormat)
+    if (criteria.arrivalDateRange?.from) params.arrivalFrom = format(startOfDay(criteria.arrivalDateRange.from), dateTimeFormat)
+    if (criteria.arrivalDateRange?.to) params.arrivalTo = format(endOfDay(criteria.arrivalDateRange.to), dateTimeFormat)
 
     const response = await publicClient.get<PageResponseDTO<TravelPackageResponseDTO>>(
       "/travel-packages",
