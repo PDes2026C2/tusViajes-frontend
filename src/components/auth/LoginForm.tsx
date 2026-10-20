@@ -41,7 +41,7 @@ export function LoginForm({
 
       {/* Email */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-semibold tracking-wider text-slate-600 uppercase">
+        <label htmlFor="email" className="text-xs font-semibold tracking-wider text-slate-600 uppercase">
           Correo electrónico
         </label>
         <div className="relative flex items-center">
@@ -58,6 +58,7 @@ export function LoginForm({
                 ? "border-error focus:border-error focus:ring-error/20"
                 : "border-slate-200 focus:border-primary focus:ring-primary/20"
             )}
+            id="email"
           />
         </div>
         {errors.email && (
@@ -67,7 +68,7 @@ export function LoginForm({
 
       {/* Password */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-semibold tracking-wider text-slate-600 uppercase">
+        <label htmlFor="password" className="text-xs font-semibold tracking-wider text-slate-600 uppercase">
           Contraseña
         </label>
         <div className="relative flex items-center">
@@ -84,6 +85,7 @@ export function LoginForm({
                 ? "border-error focus:border-error focus:ring-error/20"
                 : "border-slate-200 focus:border-primary focus:ring-primary/20"
             )}
+            id="password"
           />
         </div>
         {errors.password && (

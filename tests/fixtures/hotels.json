@@ -1,0 +1,15 @@
+[
+  {
+    "id": 201,
+    "name": "Grand Hotel",
+    "city": {
+      "id": 6,
+      "name": "Miami",
+      "countryDTO": {
+        "isoCode": "US",
+        "name": "Estados Unidos"
+      }
+    },
+    "photoUrl": "https://images.example.com/hotels/miami.jpg"
+  }
+]

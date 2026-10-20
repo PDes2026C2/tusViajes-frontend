@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { AppRouter } from "."
 import { Header } from "../components/layout/header"
 import { useHeader } from "../hooks/useHeader"
@@ -50,6 +50,8 @@ describe("MyTrips navigation and page integration", () => {
   }
 
   beforeEach(() => {
+    vi.useFakeTimers({ toFake: ["Date"] })
+    vi.setSystemTime(new Date("2026-10-12T12:00:00Z"))
     vi.resetAllMocks()
     useMyTripsStore.getState().reset()
     window.history.replaceState(null, "", "/home")
@@ -67,6 +69,10 @@ describe("MyTrips navigation and page integration", () => {
       size: 100,
       number: 0,
     })
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it("navigates to /my-trips when clicking 'Mis Viajes' in the navbar", async () => {

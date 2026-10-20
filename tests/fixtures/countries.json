@@ -1,0 +1,22 @@
+[
+  {
+    "isoCode": "AR",
+    "name": "Argentina"
+  },
+  {
+    "isoCode": "BR",
+    "name": "Brasil"
+  },
+  {
+    "isoCode": "CL",
+    "name": "Chile"
+  },
+  {
+    "isoCode": "UY",
+    "name": "Uruguay"
+  },
+  {
+    "isoCode": "US",
+    "name": "Estados Unidos"
+  }
+]
