@@ -4,6 +4,7 @@ import type { LoginCredentials, RegisterAgencyData, RegisterBuyerData, User } fr
 import { useAuthStore } from "../stores/auth"
 import { useAuthModalStore, type AuthModalMode } from "../stores/authModal"
 import type { AgencyRegistrationResponseDTO } from "../types/auth"
+import { getAuthRedirectPath } from "../utils/authRedirect"
 
 export function useAuth() {
   const navigate = useNavigate()
@@ -28,18 +29,7 @@ export function useAuth() {
   } = useAuthModalStore()
 
   const executeRoleRedirect = (currentUser: User, customRedirect?: string) => {
-    switch (currentUser.role) {
-      case "ADMIN":
-        navigate("/admin/panel")
-        break
-      case "AGENCY":
-        navigate("/agency/panel")
-        break
-      case "BUYER":
-      default:
-        navigate(customRedirect || modalRedirectPath || "/home")
-        break
-    }
+    void navigate(getAuthRedirectPath(currentUser.role, customRedirect || modalRedirectPath))
   }
 
   const handleLogin = async (
