@@ -36,7 +36,9 @@ Frontend SPA de la plataforma **TusViajes**, desarrollado con React 19, TypeScri
 
 ## 📋 Prerrequisitos
 
-Para ejecutar y desarrollar en este proyecto se requiere:
+Para levantar el stack completo con [Docker Compose](#stack-completo-con-docker-compose), solo se necesitan Git y Docker Desktop / Docker Engine en ejecución, con Compose v2.17 o superior y contenedores Linux.
+
+Para desarrollar el frontend localmente con Vite se requiere:
 
 1. **Node.js:** Versión 20 LTS o superior (recomendado v20.x o v22.x).
 2. **NPM:** Gestor de paquetes incluido con Node.js (v10+).
@@ -100,6 +102,66 @@ npm run lint
 ---
 
 ## 🚀 Cómo levantar la app
+
+### Stack completo con Docker Compose
+
+Desde este repositorio se pueden levantar los cuatro servicios con Docker Compose v2.17 o superior. Solo se necesitan Git y Docker con soporte para contenedores Linux; no hace falta instalar Java, Node ni clonar las APIs.
+
+Ejecutar desde la raíz de `tusViajes-frontend`, donde está el archivo [`compose.yaml`](compose.yaml). Si todavía no se clonó el repositorio:
+
+```bash
+git clone https://github.com/PDes2026C2/tusViajes-frontend.git
+cd tusViajes-frontend
+```
+
+```bash
+docker compose up -d --build --wait --wait-timeout 240
+```
+
+Si los repositorios están en carpetas hermanas, también se puede ejecutar desde la raíz del backend o de la API de vuelos indicando el Compose del frontend:
+
+```bash
+docker compose --project-directory ../tusViajes-frontend -f ../tusViajes-frontend/compose.yaml up -d --build --wait --wait-timeout 240
+```
+
+El archivo global se mantiene únicamente en este repositorio. `--project-directory` establece el frontend como directorio del proyecto, incluida su configuración `.env`. Para consultar el estado, ver logs o detener el stack desde otra carpeta, conservar las mismas opciones y reemplazar `up ...` por `ps`, `logs -f` o `down`.
+
+El frontend se compila desde este checkout. Las APIs se descargan de Docker Hub, usando las imágenes `rodribolanos/pdes-2026c2-externalservice:main` y `rodribolanos/pdes-2026c2-backend:main`, publicadas por sus workflows de `main`.
+
+Los cambios locales en los repositorios de las APIs no se incorporan a estas imágenes: para probarlos se deben ejecutar esas APIs desde sus propios repositorios. El frontend se sirve como una compilación de producción con Nginx; para trabajar con recarga automática, usar la opción de desarrollo con Vite.
+
+El orden de inicio es **PostgreSQL 16 → API de vuelos → Backend → Frontend**. Cada servicio espera a que el control de salud de su dependencia responda correctamente. Compose crea la red y el volumen de PostgreSQL automáticamente.
+
+| Servicio | Dirección predeterminada |
+|---|---|
+| Frontend | http://localhost:5173 |
+| Swagger del backend | http://localhost:8080/swagger-ui/index.html |
+| API de vuelos | http://localhost:8081/flights |
+| PostgreSQL | `localhost:5432` |
+
+El navegador accede al backend mediante `/api` en el mismo origen del frontend; Nginx reenvía esas peticiones al servicio `backend:8080`. Las direcciones internas de Docker no se usan desde el navegador. La compilación del frontend recibe `VITE_API_URL=/api` desde Compose.
+
+Para cambiar puertos, credenciales locales o imágenes, copiar `.env.example` a `.env` y editarlo antes del primer arranque. Por ejemplo, si ya están levantados los servicios de desarrollo, se pueden usar `FRONTEND_PORT=5174`, `BACKEND_PORT=18080`, `FLIGHTS_PORT=18081` y `POSTGRES_PORT=15433`. `.env` no se versiona. Los cambios de credenciales de PostgreSQL deben coincidir con los del volumen existente.
+
+Ambas APIs usan la misma base: las migraciones de vuelos inicializan países, ciudades, vuelos y sus tablas de pasajeros; el backend reutiliza esos datos e inicializa hoteles y la cuenta administradora. Los procesos Java usan UTC.
+
+El volumen de este Compose es independiente de las bases de prueba o demos que ya existan en la máquina. Un volumen nuevo comienza sin agencias, compradores ni paquetes comprados: se pueden registrar desde la aplicación. La cuenta administradora inicial es `admin@tusviajes.com` / `admin123`.
+
+```bash
+# Ver el estado y los logs
+docker compose ps
+docker compose logs -f
+
+# Descargar versiones nuevas de las APIs y reconstruir el frontend
+docker compose pull flights-api backend
+docker compose up -d --build --wait --wait-timeout 240
+
+# Detener y quitar los contenedores, conservando los datos
+docker compose down
+
+# Borrar también los datos de este Compose y empezar de cero
+docker compose down --volumes
+```
 
 ### Opción 1: Modo Desarrollo Local con Vite
 
