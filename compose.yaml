@@ -1,0 +1,95 @@
+name: tusviajes
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tusviajes}
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      TZ: UTC
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  flights-api:
+    image: ${FLIGHTS_IMAGE:-rodribolanos/pdes-2026c2-externalservice:main}
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-tusviajes}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-admin}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      JAVA_TOOL_OPTIONS: -Duser.timezone=UTC
+    ports:
+      - "127.0.0.1:${FLIGHTS_PORT:-8081}:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8081/flights?size=1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    restart: unless-stopped
+
+  backend:
+    image: ${BACKEND_IMAGE:-rodribolanos/pdes-2026c2-backend:main}
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-tusviajes}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-admin}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      FLIGHTS_API_BASE_URL: http://flights-api:8081
+      JAVA_TOOL_OPTIONS: -Duser.timezone=UTC
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      flights-api:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -ec
+        - |
+          exec 3<>/dev/tcp/127.0.0.1/8080
+          printf 'GET /api/countries HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3
+          IFS= read -r response <&3
+          [[ "$$response" == *" 200 "* ]]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      args:
+        VITE_API_URL: /api
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-5173}:80"
+    volumes:
+      - ./docker/nginx-api.conf:/etc/nginx/api-proxy/default.conf:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
