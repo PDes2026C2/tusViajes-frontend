@@ -122,11 +122,13 @@ services:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
       GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_USERS_HOME_PAGE: /d/tusviajes-overview
     ports:
       - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
     volumes:
       - grafana-data:/var/lib/grafana
       - ./docker/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       prometheus:
         condition: service_healthy

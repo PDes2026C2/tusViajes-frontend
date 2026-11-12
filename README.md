@@ -221,7 +221,29 @@ Las APIs exponen sus métricas en los puertos internos de gestión `backend:9091
 
 `UP` significa que Prometheus pudo consultar el endpoint de métricas del servicio. Los controles de salud del Compose también generan tráfico de API. La primera recolección puede tardar hasta 15 segundos.
 
-Los dashboards de Grafana se incorporarán en el próximo cambio.
+#### Dashboard de las APIs
+
+El dashboard **TusViajes - Métricas de las APIs** se carga automáticamente en la carpeta **TusViajes** de Grafana y se utiliza como página de inicio predeterminada. También se puede abrir directamente en http://localhost:3000/d/tusviajes-overview, adaptando el puerto si se cambió `GRAFANA_PORT`.
+
+El filtro **Servicio** permite elegir `backend`, `flights-api` o ambos. El período inicial muestra los últimos 15 minutos y los datos se actualizan cada 15 segundos.
+
+| Panel | Qué muestra |
+|---|---|
+| Estado de métricas | Resultado de la consulta de métricas de Prometheus: `UP` o `DOWN` por API. |
+| Peticiones por segundo | Tasa de peticiones HTTP de cada API. |
+| Errores HTTP 5xx | Porcentaje de respuestas 5xx respecto del tráfico de cada API. |
+| Latencia p95 por endpoint | Tiempo de respuesta aproximado del percentil 95, separado por servicio, método y ruta. |
+| Tráfico por estado HTTP | Peticiones por segundo agrupadas por código de respuesta, incluidos los 4xx. |
+| Memoria heap de Java | Memoria usada y máximo informado por los pools de heap. |
+| CPU del proceso Java | Uso de CPU del proceso de cada API. |
+| Conexiones a PostgreSQL | Conexiones activas, libres, pendientes y límite de cada pool Hikari. |
+| Hilos de Java | Cantidad de hilos vivos de cada JVM. |
+
+Las tasas y el p95 excluyen las rutas de Actuator y `/error`. Los controles de salud del Compose siguen generando tráfico de API. Las consultas de tasas utilizan `$__rate_interval` para adaptar la ventana al intervalo de recolección y al período mostrado; esperar al menos un minuto después del arranque para reunir muestras. El p95 muestra los endpoints que tuvieron tráfico en la ventana de cada consulta; sin solicitudes recientes puede mostrar `No data`. Cero conexiones activas es normal cuando la API está en reposo.
+
+La definición del dashboard está en `docker/observability/grafana/dashboards/tusviajes.json`; su carga automática se configura en `docker/observability/grafana/provisioning/dashboards/tusviajes.yaml`. Los cambios permanentes se realizan en esos archivos y se versionan en Git. Grafana vuelve a revisar el JSON cada 30 segundos y no permite guardar modificaciones de este tablero desde la interfaz.
+
+Para aplicar este cambio a un entorno que ya estaba levantado, ejecutar de nuevo el comando de arranque con el perfil `observability`. Compose recreará Grafana para incorporar la nueva configuración y el montaje del dashboard. Conservar las opciones `-f`, `-p` y `--env-file` si se usaron al crear el entorno.
 
 ### Opción 1: Modo Desarrollo Local con Vite
 
