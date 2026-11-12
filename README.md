@@ -128,7 +128,7 @@ El archivo global se mantiene únicamente en este repositorio. `--project-direct
 
 El frontend se compila desde este checkout. Las APIs se descargan de Docker Hub, usando las imágenes `rodribolanos/pdes-2026c2-externalservice:main` y `rodribolanos/pdes-2026c2-backend:main`, publicadas por sus workflows de `main`.
 
-Los cambios locales en los repositorios de las APIs no se incorporan a estas imágenes: para probarlos se deben ejecutar esas APIs desde sus propios repositorios. El frontend se sirve como una compilación de producción con Nginx; para trabajar con recarga automática, usar la opción de desarrollo con Vite.
+Los cambios locales en los repositorios de las APIs no se incorporan a estas imágenes. Para probarlos se puede usar la [construcción local de las APIs](#construcción-local-de-las-apis) o ejecutarlas desde sus propios repositorios. El frontend se sirve como una compilación de producción con Nginx; para trabajar con recarga automática, usar la opción de desarrollo con Vite.
 
 El orden de inicio es **PostgreSQL 16 → API de vuelos → Backend → Frontend**. Cada servicio espera a que el control de salud de su dependencia responda correctamente. Compose crea la red y el volumen de PostgreSQL automáticamente.
 
@@ -162,6 +162,66 @@ docker compose down
 # Borrar también los datos de este Compose y empezar de cero
 docker compose down --volumes
 ```
+
+### Observabilidad con Prometheus y Grafana
+
+El perfil opcional `observability` agrega Prometheus y Grafana al stack. Prometheus consulta las métricas de ambas APIs cada 15 segundos y Grafana inicia con la conexión a Prometheus configurada automáticamente.
+
+Este perfil requiere imágenes de las APIs que incluyan la instrumentación con Actuator y Micrometer. Mientras esos cambios no estén publicados en Docker Hub, usar la construcción local que se describe a continuación.
+
+#### Construcción local de las APIs
+
+Para probar cambios antes de mergearlos, clonar los tres repositorios en carpetas hermanas y seleccionar las ramas que se quieran probar:
+
+```text
+proyecto/
+  tusViajes-frontend/
+  tusViajes-web-app/
+  flights-backend/
+```
+
+Desde `tusViajes-frontend`, ejecutar:
+
+```bash
+docker compose -f compose.yaml -f compose.local.yaml --profile observability up -d --build --wait --wait-timeout 240
+```
+
+El archivo `compose.local.yaml` construye las imágenes de las APIs con sus Dockerfiles. Los requisitos siguen siendo Git y Docker: Java, Maven y Node se ejecutan dentro de los contenedores. Conservar las opciones `-f` y `--profile observability` al consultar el estado o administrar este entorno.
+
+Este modo utiliza la misma base persistente del stack. Para una prueba aislada, agregar `-p tusviajes-observability`, indicar otro archivo de variables con `--env-file` y elegir puertos libres mediante `FRONTEND_PORT`, `BACKEND_PORT`, `FLIGHTS_PORT`, `POSTGRES_PORT`, `PROMETHEUS_PORT` y `GRAFANA_PORT`.
+
+#### Arranque con imágenes publicadas
+
+Cuando las imágenes publicadas de ambas APIs incluyan la instrumentación, basta con clonar este repositorio y ejecutar:
+
+```bash
+docker compose pull backend flights-api
+docker compose --profile observability up -d --build --wait --wait-timeout 240
+```
+
+El comando habitual sin `--profile observability` levanta los cuatro servicios originales. El perfil agrega los dos servicios de monitoreo:
+
+| Servicio | Dirección predeterminada |
+|---|---|
+| Grafana | http://localhost:3000 |
+| Prometheus | http://localhost:9090 |
+
+Grafana inicia con las credenciales locales `admin` / `admin`. Se pueden cambiar mediante `GRAFANA_ADMIN_USER` y `GRAFANA_ADMIN_PASSWORD` en `.env`; estas variables inicializan la cuenta al crear su volumen por primera vez. Los puertos se pueden configurar con `GRAFANA_PORT` y `PROMETHEUS_PORT`.
+
+Prometheus conserva hasta siete días de métricas en un volumen persistente. Grafana utiliza otro volumen para sus datos. La conexión a Prometheus se mantiene en `docker/observability/grafana/provisioning/datasources/prometheus.yaml` y se carga automáticamente al iniciar.
+
+Las APIs exponen sus métricas en los puertos internos de gestión `backend:9091` y `flights-api:9092`. Esos puertos no se publican en el host ni se reenvían mediante el proxy del frontend. La configuración de Prometheus utiliza los nombres de servicio de la red Docker.
+
+#### Comprobar la recolección de métricas
+
+1. Ejecutar `docker compose --profile observability ps` y verificar que los seis servicios estén saludables. Si se usa la construcción local, conservar también las dos opciones `-f`.
+2. En Prometheus, abrir `/targets` y comprobar que `backend` y `flights-api` estén `UP`.
+3. En Grafana, abrir **Explore**, elegir la fuente **Prometheus** y consultar `up{job=~"backend|flights-api"}`. Debe aparecer un valor `1` por cada API.
+4. Navegar por la aplicación y consultar `http_server_requests_seconds_count` para observar las peticiones registradas. Para consultar memoria de Java, usar `jvm_memory_used_bytes`.
+
+`UP` significa que Prometheus pudo consultar el endpoint de métricas del servicio. Los controles de salud del Compose también generan tráfico de API. La primera recolección puede tardar hasta 15 segundos.
+
+Los dashboards de Grafana se incorporarán en el próximo cambio.
 
 ### Opción 1: Modo Desarrollo Local con Vite
 
