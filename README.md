@@ -276,6 +276,32 @@ docker run --rm --entrypoint promtool -v "${PWD}/docker/observability:/etc/prome
 
 El workflow **Observabilidad** ejecuta estas verificaciones cuando cambian los archivos de observabilidad en un push o un pull request hacia `main`. También se puede ejecutar manualmente desde GitHub Actions.
 
+#### Logs y correlación de solicitudes
+
+Con las versiones instrumentadas de ambas APIs, los logs se escriben en JSON en la salida estándar de los contenedores. Cada registro incluye fecha, nivel y nombre del servicio; cada solicitud HTTP de negocio agrega un registro final con `requestId`, `httpMethod`, `httpRoute`, `httpStatus` y `durationMs`.
+
+El encabezado `X-Request-ID` permite relacionar una respuesta con sus logs. Las APIs reutilizan los UUID canónicos válidos recibidos, normalizándolos a minúsculas, y generan uno nuevo si falta o es inválido. El backend transmite ese mismo ID cuando llama a la API de vuelos. La duración de cada registro corresponde al procesamiento de ese servicio. El contexto de correlación se limita al procesamiento síncrono de cada solicitud.
+
+Para consultar los logs desde este repositorio:
+
+```bash
+docker compose -f compose.yaml -f compose.local.yaml --profile observability logs --tail=50 backend flights-api
+```
+
+Conservar también las opciones `-p` y `--env-file` si se utilizaron al crear el entorno. Este comando funciona aunque no se haya activado el perfil de monitoreo, porque los logs los producen las propias APIs.
+
+Para probar la correlación a través del proxy del frontend:
+
+```bash
+curl -i -H "X-Request-ID: 09c409d2-cf9b-4a33-a5f5-388dcf4de99e" http://localhost:5173/api/countries
+```
+
+En PowerShell, usar `curl.exe`. Adaptar el puerto si se cambió `FRONTEND_PORT`. La respuesta debe contener el encabezado `X-Request-ID` enviado y en los logs del backend debe aparecer ese `requestId`. Para seguir una llamada entre las dos APIs, consultar `/api/flights` con un usuario autorizado y buscar el ID de esa respuesta en los logs de ambos servicios.
+
+Los registros HTTP usan la plantilla de la ruta, sin parámetros de consulta, cuerpos ni encabezados de autenticación. Si no se resolvió un controlador, por ejemplo ante un rechazo de seguridad, `httpRoute` aparece como `UNMAPPED`. Las rutas de Actuator quedan excluidas del registro de solicitudes. Las pruebas de estos comportamientos y de la propagación del ID se mantienen en los repositorios de las APIs.
+
+Este bloque permite correlacionar los logs mediante IDs. La recolección centralizada de logs en Grafana y las trazas distribuidas con spans requieren componentes adicionales.
+
 ### Opción 1: Modo Desarrollo Local con Vite
 
 1. **Instalar dependencias:**
