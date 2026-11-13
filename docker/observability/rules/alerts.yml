@@ -1,0 +1,52 @@
+groups:
+  - name: tusviajes-apis
+    rules:
+      - alert: ApiMetricsUnavailable
+        expr: up{job=~"backend|flights-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No se pueden recolectar métricas de {{ $labels.job }}"
+          description: "Prometheus no pudo consultar {{ $labels.instance }} durante al menos un minuto. Revisar la API, su endpoint de métricas y la conectividad."
+
+      - alert: ApiHighServerErrorRate
+        expr: |
+          (
+            sum by (job) (
+              rate(http_server_requests_seconds_count{job=~"backend|flights-api",uri!~"/actuator.*|/error",status=~"5.."}[5m])
+            )
+            /
+            sum by (job) (
+              rate(http_server_requests_seconds_count{job=~"backend|flights-api",uri!~"/actuator.*|/error"}[5m])
+            )
+          ) > 0.05
+          and on (job)
+          sum by (job) (
+            increase(http_server_requests_seconds_count{job=~"backend|flights-api",uri!~"/actuator.*|/error"}[5m])
+          ) >= 20
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Errores 5xx elevados en {{ $labels.job }}"
+          description: "Más del 5 % de las respuestas son 5xx durante al menos dos minutos, con un mínimo de 20 solicitudes estimadas en la ventana de cinco minutos. Revisar los códigos HTTP y los logs de la API."
+
+      - alert: ApiHighLatency
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le, job, method, uri) (
+              rate(http_server_requests_seconds_bucket{job=~"backend|flights-api",uri!~"/actuator.*|/error"}[5m])
+            )
+          ) > 1
+          and on (job, method, uri)
+          sum by (job, method, uri) (
+            increase(http_server_requests_seconds_count{job=~"backend|flights-api",uri!~"/actuator.*|/error"}[5m])
+          ) >= 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latencia elevada en {{ $labels.job }}"
+          description: "El p95 de {{ $labels.method }} {{ $labels.uri }} supera un segundo durante al menos cinco minutos, con un mínimo de 20 solicitudes estimadas por ventana de cinco minutos. Revisar el endpoint y sus dependencias."

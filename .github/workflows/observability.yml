@@ -1,0 +1,29 @@
+name: Observabilidad
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - docker/observability/**
+      - .github/workflows/observability.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - docker/observability/**
+      - .github/workflows/observability.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prometheus:
+    name: Configuración y reglas de Prometheus
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+      - name: Validar la configuración y las reglas
+        run: docker run --rm --entrypoint promtool -v "${PWD}/docker/observability:/etc/prometheus:ro" -w /etc/prometheus prom/prometheus:v3.13.5 check config prometheus.yml
+      - name: Probar las alertas
+        run: docker run --rm --entrypoint promtool -v "${PWD}/docker/observability:/etc/prometheus:ro" -w /etc/prometheus/tests prom/prometheus:v3.13.5 test rules alerts.test.yml

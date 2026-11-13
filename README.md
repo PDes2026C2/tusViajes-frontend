@@ -245,6 +245,37 @@ La definición del dashboard está en `docker/observability/grafana/dashboards/t
 
 Para aplicar este cambio a un entorno que ya estaba levantado, ejecutar de nuevo el comando de arranque con el perfil `observability`. Compose recreará Grafana para incorporar la nueva configuración y el montaje del dashboard. Conservar las opciones `-f`, `-p` y `--env-file` si se usaron al crear el entorno.
 
+#### Alertas de las APIs
+
+Prometheus evalúa las reglas de `docker/observability/rules/alerts.yml` cada 15 segundos. Se pueden consultar en http://localhost:9090/alerts, adaptando el puerto si se cambió `PROMETHEUS_PORT`.
+
+| Alerta | Condición | Tiempo sostenido | Severidad |
+|---|---|---|---|
+| `ApiMetricsUnavailable` | Prometheus no puede recolectar las métricas de una API (`up = 0`). | 1 minuto | `critical` |
+| `ApiHighServerErrorRate` | Más del 5 % de respuestas 5xx por API en una ventana de 5 minutos, con al menos 20 solicitudes estimadas en esa ventana. | 2 minutos | `warning` |
+| `ApiHighLatency` | p95 superior a 1 segundo por servicio, método y ruta en una ventana de 5 minutos, con al menos 20 solicitudes estimadas para ese endpoint en esa ventana. | 5 minutos | `warning` |
+
+Los umbrales son valores iniciales para este proyecto y se ajustan editando las reglas después de observar el comportamiento normal y las pruebas de carga. Las alertas HTTP excluyen Actuator y `/error`, igual que el dashboard. Los 4xx no cuentan como errores del servidor, aunque forman parte del total de peticiones. `increase` estima la cantidad de solicitudes a partir de las muestras de Prometheus; el mínimo de tráfico evita alertas por unas pocas solicitudes aisladas.
+
+Las reglas usan los estados `inactive` (condición no cumplida), `pending` (condición cumplida, esperando el tiempo sostenido) y `firing` (alerta activa). Cuando la condición deja de cumplirse, la alerta se resuelve en la siguiente evaluación. La pérdida de métricas indica un problema de recolección: puede deberse a una API detenida, a su endpoint de métricas o a la conectividad.
+
+Este bloque muestra las alertas en Prometheus. Para recibir notificaciones por correo u otros canales hace falta configurar Alertmanager y sus destinatarios.
+
+Para incorporar el montaje de reglas a un entorno existente, ejecutar de nuevo el comando de arranque con el perfil `observability`, conservando las opciones `-f`, `-p` y `--env-file` usadas al crearlo. Si sólo cambia el contenido de una regla, reiniciar Prometheus con `docker compose --profile observability restart prometheus`, conservando también esas opciones. Comprobar en `/rules` que las tres reglas tengan estado de salud `ok`.
+
+##### Pruebas de las alertas
+
+Los casos de `docker/observability/tests/alerts.test.yml` se ejecutan con `promtool`, incluido en la misma imagen de Prometheus que usa Compose. Simulan el paso del tiempo y las métricas para comprobar la activación, las esperas, la recuperación y la ausencia de falsos avisos por poco tráfico, respuestas 4xx o rutas excluidas.
+
+Desde la raíz del repositorio, con Docker disponible, ejecutar los siguientes comandos. Funcionan en Bash y PowerShell y no requieren levantar la aplicación:
+
+```bash
+docker run --rm --entrypoint promtool -v "${PWD}/docker/observability:/etc/prometheus:ro" -w /etc/prometheus prom/prometheus:v3.13.5 check config prometheus.yml
+docker run --rm --entrypoint promtool -v "${PWD}/docker/observability:/etc/prometheus:ro" -w /etc/prometheus/tests prom/prometheus:v3.13.5 test rules alerts.test.yml
+```
+
+El workflow **Observabilidad** ejecuta estas verificaciones cuando cambian los archivos de observabilidad en un push o un pull request hacia `main`. También se puede ejecutar manualmente desde GitHub Actions.
+
 ### Opción 1: Modo Desarrollo Local con Vite
 
 1. **Instalar dependencias:**
