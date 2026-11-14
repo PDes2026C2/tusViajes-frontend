@@ -165,7 +165,7 @@ docker compose down --volumes
 
 ### Observabilidad con Prometheus y Grafana
 
-El perfil opcional `observability` agrega Prometheus y Grafana al stack. Prometheus consulta las métricas de ambas APIs cada 15 segundos y Grafana inicia con la conexión a Prometheus configurada automáticamente.
+El perfil opcional `observability` agrega Prometheus, Grafana, Loki y Alloy al stack. Prometheus consulta las métricas de ambas APIs cada 15 segundos; Alloy recoge sus logs y los envía a Loki. Grafana inicia con las fuentes Prometheus y Loki configuradas automáticamente.
 
 Este perfil requiere imágenes de las APIs que incluyan la instrumentación con Actuator y Micrometer. Mientras esos cambios no estén publicados en Docker Hub, usar la construcción local que se describe a continuación.
 
@@ -199,12 +199,14 @@ docker compose pull backend flights-api
 docker compose --profile observability up -d --build --wait --wait-timeout 240
 ```
 
-El comando habitual sin `--profile observability` levanta los cuatro servicios originales. El perfil agrega los dos servicios de monitoreo:
+El comando habitual sin `--profile observability` levanta los cuatro servicios originales. El perfil agrega cuatro servicios de observabilidad, ocho en total:
 
 | Servicio | Dirección predeterminada |
 |---|---|
 | Grafana | http://localhost:3000 |
 | Prometheus | http://localhost:9090 |
+| Loki | Interno: `loki:3100`; se consulta desde Grafana. |
+| Alloy | Interno: `alloy:12345`; recoge los logs de las APIs. |
 
 Grafana inicia con las credenciales locales `admin` / `admin`. Se pueden cambiar mediante `GRAFANA_ADMIN_USER` y `GRAFANA_ADMIN_PASSWORD` en `.env`; estas variables inicializan la cuenta al crear su volumen por primera vez. Los puertos se pueden configurar con `GRAFANA_PORT` y `PROMETHEUS_PORT`.
 
@@ -214,7 +216,7 @@ Las APIs exponen sus métricas en los puertos internos de gestión `backend:9091
 
 #### Comprobar la recolección de métricas
 
-1. Ejecutar `docker compose --profile observability ps` y verificar que los seis servicios estén saludables. Si se usa la construcción local, conservar también las dos opciones `-f`.
+1. Ejecutar `docker compose --profile observability ps` y verificar que los ocho servicios estén en ejecución y los que incluyen healthcheck estén saludables. Loki utiliza una imagen sin shell; su disponibilidad HTTP se comprueba desde el healthcheck de Alloy. Si se usa la construcción local, conservar también las dos opciones `-f`.
 2. En Prometheus, abrir `/targets` y comprobar que `backend` y `flights-api` estén `UP`.
 3. En Grafana, abrir **Explore**, elegir la fuente **Prometheus** y consultar `up{job=~"backend|flights-api"}`. Debe aparecer un valor `1` por cada API.
 4. Navegar por la aplicación y consultar `http_server_requests_seconds_count` para observar las peticiones registradas. Para consultar memoria de Java, usar `jvm_memory_used_bytes`.
@@ -300,7 +302,51 @@ En PowerShell, usar `curl.exe`. Adaptar el puerto si se cambió `FRONTEND_PORT`.
 
 Los registros HTTP usan la plantilla de la ruta, sin parámetros de consulta, cuerpos ni encabezados de autenticación. Si no se resolvió un controlador, por ejemplo ante un rechazo de seguridad, `httpRoute` aparece como `UNMAPPED`. Las rutas de Actuator quedan excluidas del registro de solicitudes. Las pruebas de estos comportamientos y de la propagación del ID se mantienen en los repositorios de las APIs.
 
-Este bloque permite correlacionar los logs mediante IDs. La recolección centralizada de logs en Grafana y las trazas distribuidas con spans requieren componentes adicionales.
+#### Consultar los logs desde Grafana
+
+Alloy descubre los contenedores de Docker cada cinco segundos y recoge únicamente los servicios `backend` y `flights-api` del mismo proyecto Compose. Recibe automáticamente el nombre real del proyecto, incluso si se cambió con `-p`, para mantener separados los entornos. Accede al motor mediante el socket `/var/run/docker.sock`, montado en el contenedor; este perfil requiere Docker con contenedores Linux y acceso a ese socket, como el entorno de Docker Desktop utilizado para este proyecto.
+
+Loki conserva los logs en un volumen persistente con una política de retención de siete días. La eliminación la realiza el compactor de forma asíncrona, por lo que puede demorarse después de cumplido ese período. Alloy conserva sus posiciones de lectura en otro volumen para continuar después de reiniciarse. Loki y Alloy utilizan la red interna de Docker, sin publicar puertos adicionales en la computadora.
+
+Para buscar una solicitud:
+
+1. Abrir Grafana y entrar a **Explore**.
+2. Seleccionar la fuente **Loki**, cambiar el editor a **Code** y elegir un período reciente, por ejemplo los últimos 15 minutos.
+3. Ejecutar alguna de estas consultas LogQL:
+
+```logql
+# Logs de las dos APIs.
+{service_name=~"backend|flights-api"}
+
+# Logs del backend.
+{service_name="backend"}
+
+# Seguir el ID de una solicitud en ambas APIs.
+{service_name=~"backend|flights-api"} | json | requestId="09c409d2-cf9b-4a33-a5f5-388dcf4de99e"
+
+# Respuestas HTTP con error del servidor.
+{service_name=~"backend|flights-api"} | json | httpStatus >= 500 | __error__=""
+```
+
+Reemplazar el ID del ejemplo por el recibido en `X-Request-ID`. Se puede generar con el comando `curl` de la sección anterior. La primera recolección puede tardar algunos segundos. `service_name` identifica al servicio de Compose; el JSON original conserva además el nombre de la aplicación (`tusViajes` o `flights`). El ID se filtra al consultar el contenido JSON, sin convertir cada solicitud en una etiqueta indexada de Loki.
+
+Para aplicar este bloque, repetir el comando de arranque con el perfil `observability`, conservando las opciones de archivos, proyecto y variables del entorno existente. Compose incorporará Loki y Alloy. Si Grafana ya estaba levantado, reiniciarlo para que lea el nuevo archivo de la fuente:
+
+```bash
+docker compose --profile observability restart --no-deps grafana
+```
+
+Conservar también las opciones `-f`, `-p` y `--env-file` del entorno al reiniciar. Si sólo se modifican los archivos de configuración de Loki o Alloy, reiniciar el servicio afectado para recargarlo.
+
+Las configuraciones están en `docker/observability/loki/config.yml`, `docker/observability/alloy/config.alloy` y `docker/observability/grafana/provisioning/datasources/loki.yaml`. El workflow **Observabilidad** valida Compose y ambos archivos con las imágenes usadas por el entorno. Esas validaciones también se pueden ejecutar localmente:
+
+```bash
+docker compose --profile observability config --quiet
+docker run --rm --network none -v "${PWD}/docker/observability/loki:/etc/loki:ro" grafana/loki:3.7.9 '-config.file=/etc/loki/config.yml' '-verify-config=true'
+docker run --rm --network none -e COMPOSE_PROJECT_NAME=tusviajes -v "${PWD}/docker/observability/alloy:/etc/alloy:ro" grafana/alloy:v1.21.3 validate /etc/alloy/config.alloy
+```
+
+La correlación por `requestId` permite seguir solicitudes entre logs. Las trazas distribuidas con spans requieren su propia instrumentación y almacenamiento.
 
 ### Opción 1: Modo Desarrollo Local con Vite
 

@@ -116,6 +116,53 @@ services:
       retries: 6
     restart: unless-stopped
 
+  loki:
+    image: grafana/loki:3.7.9
+    profiles: [observability]
+    command: ["-config.file=/etc/loki/config.yml"]
+    volumes:
+      - ./docker/observability/loki/config.yml:/etc/loki/config.yml:ro
+      - loki-data:/loki
+    restart: unless-stopped
+
+  alloy:
+    image: grafana/alloy:v1.21.3
+    profiles: [observability]
+    command:
+      - run
+      - --storage.path=/var/lib/alloy/data
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --disable-reporting
+      - /etc/alloy/config.alloy
+    environment:
+      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+    volumes:
+      - ./docker/observability/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - alloy-data:/var/lib/alloy/data
+    depends_on:
+      loki:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -ec
+        - |
+          exec 3<>/dev/tcp/127.0.0.1/12345
+          printf 'GET /-/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3
+          IFS= read -r response <&3
+          [[ "$$response" == *" 200 "* ]]
+          exec 4<>/dev/tcp/loki/3100
+          printf 'GET /ready HTTP/1.1\r\nHost: loki\r\nConnection: close\r\n\r\n' >&4
+          IFS= read -r response <&4
+          [[ "$$response" == *" 200 "* ]]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
   grafana:
     image: grafana/grafana:13.3.1
     profiles: [observability]
@@ -133,6 +180,8 @@ services:
     depends_on:
       prometheus:
         condition: service_healthy
+      loki:
+        condition: service_started
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/api/health"]
       interval: 10s
@@ -145,3 +194,5 @@ volumes:
   postgres-data:
   prometheus-data:
   grafana-data:
+  loki-data:
+  alloy-data:
