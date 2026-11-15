@@ -27,6 +27,9 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-admin}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-password}
       JAVA_TOOL_OPTIONS: -Duser.timezone=UTC
+      TRACING_EXPORT_ENABLED: ${TRACING_EXPORT_ENABLED:-false}
+      TRACING_SAMPLING_PROBABILITY: ${TRACING_SAMPLING_PROBABILITY:-1.0}
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
     ports:
       - "127.0.0.1:${FLIGHTS_PORT:-8081}:8081"
     depends_on:
@@ -49,6 +52,9 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-password}
       FLIGHTS_API_BASE_URL: http://flights-api:8081
       JAVA_TOOL_OPTIONS: -Duser.timezone=UTC
+      TRACING_EXPORT_ENABLED: ${TRACING_EXPORT_ENABLED:-false}
+      TRACING_SAMPLING_PROBABILITY: ${TRACING_SAMPLING_PROBABILITY:-1.0}
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
     ports:
       - "127.0.0.1:${BACKEND_PORT:-8080}:8080"
     depends_on:
@@ -163,6 +169,16 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  tempo:
+    image: grafana/tempo:3.1.1
+    profiles: [observability]
+    command: ["-config.file=/etc/tempo/config.yml"]
+    volumes:
+      - ./docker/observability/tempo/config.yml:/etc/tempo/config.yml:ro
+      - tempo-data:/var/tempo
+    stop_grace_period: 30s
+    restart: unless-stopped
+
   grafana:
     image: grafana/grafana:13.3.1
     profiles: [observability]
@@ -182,6 +198,8 @@ services:
         condition: service_healthy
       loki:
         condition: service_started
+      tempo:
+        condition: service_started
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/api/health"]
       interval: 10s
@@ -196,3 +214,4 @@ volumes:
   grafana-data:
   loki-data:
   alloy-data:
+  tempo-data:

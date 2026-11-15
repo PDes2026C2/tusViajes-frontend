@@ -165,7 +165,9 @@ docker compose down --volumes
 
 ### Observabilidad con Prometheus y Grafana
 
-El perfil opcional `observability` agrega Prometheus, Grafana, Loki y Alloy al stack. Prometheus consulta las métricas de ambas APIs cada 15 segundos; Alloy recoge sus logs y los envía a Loki. Grafana inicia con las fuentes Prometheus y Loki configuradas automáticamente.
+El perfil opcional `observability` agrega Prometheus, Grafana, Loki, Alloy y Tempo al stack. Prometheus consulta las métricas de ambas APIs cada 15 segundos; Alloy recoge sus logs y los envía a Loki. Las APIs instrumentadas pueden enviar trazas a Tempo. Grafana inicia con las tres fuentes configuradas automáticamente.
+
+Para activar la exportación de trazas al usar este perfil, configurar `TRACING_EXPORT_ENABLED=true` en `.env`, como se explica en [Trazas distribuidas](#trazas-distribuidas).
 
 Este perfil requiere imágenes de las APIs que incluyan la instrumentación con Actuator y Micrometer. Mientras esos cambios no estén publicados en Docker Hub, usar la construcción local que se describe a continuación.
 
@@ -199,7 +201,7 @@ docker compose pull backend flights-api
 docker compose --profile observability up -d --build --wait --wait-timeout 240
 ```
 
-El comando habitual sin `--profile observability` levanta los cuatro servicios originales. El perfil agrega cuatro servicios de observabilidad, ocho en total:
+El comando habitual sin `--profile observability` levanta los cuatro servicios originales. El perfil agrega cinco servicios de observabilidad, nueve en total:
 
 | Servicio | Dirección predeterminada |
 |---|---|
@@ -207,6 +209,7 @@ El comando habitual sin `--profile observability` levanta los cuatro servicios o
 | Prometheus | http://localhost:9090 |
 | Loki | Interno: `loki:3100`; se consulta desde Grafana. |
 | Alloy | Interno: `alloy:12345`; recoge los logs de las APIs. |
+| Tempo | Interno: `tempo:3200` para consultas y `tempo:4318` para recibir trazas OTLP HTTP. |
 
 Grafana inicia con las credenciales locales `admin` / `admin`. Se pueden cambiar mediante `GRAFANA_ADMIN_USER` y `GRAFANA_ADMIN_PASSWORD` en `.env`; estas variables inicializan la cuenta al crear su volumen por primera vez. Los puertos se pueden configurar con `GRAFANA_PORT` y `PROMETHEUS_PORT`.
 
@@ -216,7 +219,7 @@ Las APIs exponen sus métricas en los puertos internos de gestión `backend:9091
 
 #### Comprobar la recolección de métricas
 
-1. Ejecutar `docker compose --profile observability ps` y verificar que los ocho servicios estén en ejecución y los que incluyen healthcheck estén saludables. Loki utiliza una imagen sin shell; su disponibilidad HTTP se comprueba desde el healthcheck de Alloy. Si se usa la construcción local, conservar también las dos opciones `-f`.
+1. Ejecutar `docker compose --profile observability ps` y verificar que los nueve servicios estén en ejecución y los que incluyen healthcheck estén saludables. Loki y Tempo utilizan imágenes sin shell. La disponibilidad HTTP de Loki se comprueba desde el healthcheck de Alloy; la de Tempo se puede comprobar con **Save & test** en su fuente de Grafana. Si se usa la construcción local, conservar también las dos opciones `-f`.
 2. En Prometheus, abrir `/targets` y comprobar que `backend` y `flights-api` estén `UP`.
 3. En Grafana, abrir **Explore**, elegir la fuente **Prometheus** y consultar `up{job=~"backend|flights-api"}`. Debe aparecer un valor `1` por cada API.
 4. Navegar por la aplicación y consultar `http_server_requests_seconds_count` para observar las peticiones registradas. Para consultar memoria de Java, usar `jvm_memory_used_bytes`.
@@ -346,7 +349,43 @@ docker run --rm --network none -v "${PWD}/docker/observability/loki:/etc/loki:ro
 docker run --rm --network none -e COMPOSE_PROJECT_NAME=tusviajes -v "${PWD}/docker/observability/alloy:/etc/alloy:ro" grafana/alloy:v1.21.3 validate /etc/alloy/config.alloy
 ```
 
-La correlación por `requestId` permite seguir solicitudes entre logs. Las trazas distribuidas con spans requieren su propia instrumentación y almacenamiento.
+#### Trazas distribuidas
+
+Las APIs utilizan la instrumentación HTTP de Spring Boot con OpenTelemetry. Una consulta del backend a vuelos crea spans relacionados: recepción en el backend, llamada HTTP saliente y procesamiento en vuelos. Comparten un `traceId` y cada operación tiene su propio `spanId`, inicio y duración. Este bloque instrumenta HTTP; las consultas a PostgreSQL y las operaciones internas requieren instrumentación adicional.
+
+Para exportar las trazas a Tempo, configurar en `.env` antes de repetir el comando de arranque con el perfil `observability`:
+
+```env
+TRACING_EXPORT_ENABLED=true
+TRACING_SAMPLING_PROBABILITY=1.0
+```
+
+El muestreo `1.0` permite observar todas las solicitudes de las pruebas locales. Se puede reducir después de medir el volumen necesario. La exportación está desactivada por defecto y debe dejarse en `false` cuando se ejecute la aplicación sin Tempo. Las APIs siguen generando su contexto de correlación aunque la exportación esté desactivada. El endpoint OTLP del Compose se comunica por la red interna y no publica puertos adicionales.
+
+El arranque recrea las APIs para incorporar las variables nuevas. Antes de publicar sus imágenes, usar el comando con `compose.local.yaml` y `--build`. Reiniciar Grafana con las mismas opciones de proyecto, archivos y variables para que cargue la fuente Tempo y los enlaces entre logs y trazas:
+
+```bash
+docker compose --profile observability restart --no-deps grafana
+```
+
+Para probar una traza:
+
+1. Consultar `/api/countries` a través del frontend y copiar el encabezado `X-Trace-ID` de la respuesta. En PowerShell se puede usar `curl.exe -i http://localhost:5173/api/countries`, adaptando el puerto. `X-Request-ID` continúa disponible para la correlación anterior.
+2. En Grafana, abrir **Explore**, seleccionar **Tempo**, elegir una consulta por **TraceID** y pegar ese identificador. La exportación es por lotes y puede tardar unos segundos.
+3. Para observar el recorrido entre servicios, consultar `/api/flights` con un usuario autorizado y abrir su `X-Trace-ID`. La vista muestra la relación entre los spans del backend y de vuelos.
+4. En **Explore → Loki**, buscar los logs por `traceId`. Al expandir una línea JSON aparece **Ver traza**. Desde un span en Tempo también se pueden consultar los logs de esa traza.
+
+```logql
+{job="api-logs"} | json | traceId="REEMPLAZAR_POR_EL_TRACE_ID"
+```
+
+Un ID presente en los logs puede no estar almacenado en Tempo si la exportación estaba desactivada o la traza no fue muestreada. Para las pruebas del entorno local se utilizan exportación activa y muestreo `1.0`.
+
+Tempo se ejecuta en modo monolítico, con datos y WAL en un volumen persistente y retención configurada de siete días. La eliminación se procesa mediante sus tareas de compactación. La configuración está en `docker/observability/tempo/config.yml` y su fuente de Grafana en `docker/observability/grafana/provisioning/datasources/tempo.yaml`. Las pruebas de las APIs cubren los encabezados W3C, los IDs en logs y la propagación a vuelos; el workflow **Observabilidad** valida también la configuración de Tempo:
+
+```bash
+docker run --rm --network none -v "${PWD}/docker/observability/tempo:/etc/tempo:ro" grafana/tempo:3.1.1 '-config.file=/etc/tempo/config.yml' '-config.verify=true'
+```
 
 ### Opción 1: Modo Desarrollo Local con Vite
 

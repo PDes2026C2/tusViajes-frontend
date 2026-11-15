@@ -42,3 +42,12 @@ jobs:
         run: docker run --rm --network none -v "${PWD}/docker/observability/loki:/etc/loki:ro" grafana/loki:3.7.9 '-config.file=/etc/loki/config.yml' '-verify-config=true'
       - name: Validar Alloy
         run: docker run --rm --network none -e COMPOSE_PROJECT_NAME=tusviajes -v "${PWD}/docker/observability/alloy:/etc/alloy:ro" grafana/alloy:v1.21.3 validate /etc/alloy/config.alloy
+
+  traces:
+    name: Configuración de Tempo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+      - name: Validar Tempo
+        run: docker run --rm --network none -v "${PWD}/docker/observability/tempo:/etc/tempo:ro" grafana/tempo:3.1.1 '-config.file=/etc/tempo/config.yml' '-config.verify=true'
