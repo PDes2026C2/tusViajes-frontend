@@ -27,6 +27,9 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-admin}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-password}
       JAVA_TOOL_OPTIONS: -Duser.timezone=UTC
+      TRACING_EXPORT_ENABLED: ${TRACING_EXPORT_ENABLED:-false}
+      TRACING_SAMPLING_PROBABILITY: ${TRACING_SAMPLING_PROBABILITY:-1.0}
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
     ports:
       - "127.0.0.1:${FLIGHTS_PORT:-8081}:8081"
     depends_on:
@@ -49,6 +52,9 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-password}
       FLIGHTS_API_BASE_URL: http://flights-api:8081
       JAVA_TOOL_OPTIONS: -Duser.timezone=UTC
+      TRACING_EXPORT_ENABLED: ${TRACING_EXPORT_ENABLED:-false}
+      TRACING_SAMPLING_PROBABILITY: ${TRACING_SAMPLING_PROBABILITY:-1.0}
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://tempo:4318/v1/traces
     ports:
       - "127.0.0.1:${BACKEND_PORT:-8080}:8080"
     depends_on:
@@ -91,5 +97,121 @@ services:
       retries: 5
     restart: unless-stopped
 
+  prometheus:
+    image: prom/prometheus:v3.13.5
+    profiles: [observability]
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./docker/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./docker/observability/rules:/etc/prometheus/rules:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      backend:
+        condition: service_healthy
+      flights-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:9090/-/ready"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:3.7.9
+    profiles: [observability]
+    command: ["-config.file=/etc/loki/config.yml"]
+    volumes:
+      - ./docker/observability/loki/config.yml:/etc/loki/config.yml:ro
+      - loki-data:/loki
+    restart: unless-stopped
+
+  alloy:
+    image: grafana/alloy:v1.21.3
+    profiles: [observability]
+    command:
+      - run
+      - --storage.path=/var/lib/alloy/data
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --disable-reporting
+      - /etc/alloy/config.alloy
+    environment:
+      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+    volumes:
+      - ./docker/observability/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - alloy-data:/var/lib/alloy/data
+    depends_on:
+      loki:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -ec
+        - |
+          exec 3<>/dev/tcp/127.0.0.1/12345
+          printf 'GET /-/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3
+          IFS= read -r response <&3
+          [[ "$$response" == *" 200 "* ]]
+          exec 4<>/dev/tcp/loki/3100
+          printf 'GET /ready HTTP/1.1\r\nHost: loki\r\nConnection: close\r\n\r\n' >&4
+          IFS= read -r response <&4
+          [[ "$$response" == *" 200 "* ]]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  tempo:
+    image: grafana/tempo:3.1.1
+    profiles: [observability]
+    command: ["-config.file=/etc/tempo/config.yml"]
+    volumes:
+      - ./docker/observability/tempo/config.yml:/etc/tempo/config.yml:ro
+      - tempo-data:/var/tempo
+    stop_grace_period: 30s
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:13.3.1
+    profiles: [observability]
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_USERS_HOME_PAGE: /d/tusviajes-overview
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      loki:
+        condition: service_started
+      tempo:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 20s
+    restart: unless-stopped
+
 volumes:
   postgres-data:
+  prometheus-data:
+  grafana-data:
+  loki-data:
+  alloy-data:
+  tempo-data:

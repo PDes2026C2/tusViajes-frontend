@@ -1,0 +1,11 @@
+# Construir las APIs desde repositorios hermanos antes de publicar sus imágenes.
+# docker compose -f compose.yaml -f compose.local.yaml --profile observability up -d --build --wait --wait-timeout 240
+services:
+  backend:
+    image: tusviajes-backend:local
+    build:
+      context: ../tusViajes-web-app
+  flights-api:
+    image: tusviajes-flights-api:local
+    build:
+      context: ../flights-backend

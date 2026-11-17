@@ -1,0 +1,53 @@
+name: Observabilidad
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - compose.yaml
+      - docker/observability/**
+      - .github/workflows/observability.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - compose.yaml
+      - docker/observability/**
+      - .github/workflows/observability.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prometheus:
+    name: Configuración y reglas de Prometheus
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+      - name: Validar la configuración y las reglas
+        run: docker run --rm --entrypoint promtool -v "${PWD}/docker/observability:/etc/prometheus:ro" -w /etc/prometheus prom/prometheus:v3.13.5 check config prometheus.yml
+      - name: Probar las alertas
+        run: docker run --rm --entrypoint promtool -v "${PWD}/docker/observability:/etc/prometheus:ro" -w /etc/prometheus/tests prom/prometheus:v3.13.5 test rules alerts.test.yml
+
+  logs:
+    name: Configuración de Loki y Alloy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+      - name: Validar Compose
+        run: docker compose --profile observability config --quiet
+      - name: Validar Loki
+        run: docker run --rm --network none -v "${PWD}/docker/observability/loki:/etc/loki:ro" grafana/loki:3.7.9 '-config.file=/etc/loki/config.yml' '-verify-config=true'
+      - name: Validar Alloy
+        run: docker run --rm --network none -e COMPOSE_PROJECT_NAME=tusviajes -v "${PWD}/docker/observability/alloy:/etc/alloy:ro" grafana/alloy:v1.21.3 validate /etc/alloy/config.alloy
+
+  traces:
+    name: Configuración de Tempo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+      - name: Validar Tempo
+        run: docker run --rm --network none -v "${PWD}/docker/observability/tempo:/etc/tempo:ro" grafana/tempo:3.1.1 '-config.file=/etc/tempo/config.yml' '-config.verify=true'
