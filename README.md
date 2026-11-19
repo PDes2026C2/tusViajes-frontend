@@ -147,6 +147,12 @@ Ambas APIs usan la misma base: las migraciones de vuelos inicializan países, ci
 
 El volumen de este Compose es independiente de las bases de prueba o demos que ya existan en la máquina. Un volumen nuevo comienza sin agencias, compradores ni paquetes comprados: se pueden registrar desde la aplicación. La cuenta administradora inicial es `admin@tusviajes.com` / `admin123`.
 
+Para inicializar la agencia de ejemplo en una base sin agencias, definir una contraseña
+para ese entorno en `TUSVIAJES_BOOTSTRAP_AGENCY_PASSWORD` dentro de `.env` antes de
+levantar el backend. La carga automática de los paquetes de ejemplo requiere una agencia
+en la base. La variable se usa sólo al crear la cuenta, por lo que una instancia que
+ya tenía la contraseña anterior necesita cambiarla por separado.
+
 ```bash
 # Ver el estado y los logs
 docker compose ps
