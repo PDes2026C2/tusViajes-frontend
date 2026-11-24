@@ -764,7 +764,7 @@
       "gridPos": {
         "x": 0,
         "y": 39,
-        "w": 12,
+        "w": 24,
         "h": 9
       },
       "targets": [
@@ -779,57 +779,6 @@
           "instant": true,
           "range": false,
           "legendFormat": "{{destination}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "min": 0,
-          "noValue": "Sin datos",
-          "decimals": 1
-        },
-        "overrides": []
-      },
-      "options": {
-        "orientation": "horizontal",
-        "displayMode": "basic",
-        "showUnfilled": true,
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        }
-      }
-    },
-    {
-      "id": 15,
-      "title": "Ciudades monitoreadas más buscadas",
-      "description": "Cinco ciudades configuradas con mayor actividad en el período. Los filtros agrupados en other quedan fuera del ranking.",
-      "type": "bargauge",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "gridPos": {
-        "x": 12,
-        "y": 39,
-        "w": 12,
-        "h": 9
-      },
-      "targets": [
-        {
-          "expr": "topk(5, sum by (destination) (increase(tusviajes_package_destination_searches_total{job=\"backend\",type=\"city\",destination!=\"other\"}[$__range])) > 0)",
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "instant": true,
-          "range": false,
-          "legendFormat": "ID {{destination}}"
         }
       ],
       "fieldConfig": {

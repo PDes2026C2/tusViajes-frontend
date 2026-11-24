@@ -268,9 +268,6 @@ Cuenta una vez cada primera página exitosa de `GET /api/travel-packages` (`page
 | Evolución de búsquedas | Tasa de búsquedas por minuto, separada por resultado. |
 | Búsquedas sin resultados | Búsquedas vacías divididas por el total. Sin búsquedas en el período, el porcentaje no está definido. |
 | Países de destino más buscados | Hasta cinco códigos ISO de país filtrados explícitamente, ordenados por búsquedas. |
-| Ciudades monitoreadas más buscadas | Hasta cinco IDs configurados del catálogo, ordenados por búsquedas. |
-
-Para configurar el ranking de ciudades, consultar `GET /api/cities?isoCode=AR` o el país correspondiente y poner los IDs del catálogo en `TUSVIAJES_METRICS_MONITORED_CITY_IDS` dentro del archivo de entorno de Compose. Se admiten hasta 50 IDs positivos distintos, separados por comas. Volver a ejecutar Compose para recrear el backend con la configuración. Los IDs positivos fuera de la lista se agrupan en `other`, excluido del ranking de ciudades. La lista queda vacía por defecto.
 
 Las consultas PromQL del dashboard usan `$__range` en las consultas instantáneas y `$__rate_interval` en la serie temporal:
 
@@ -293,7 +290,7 @@ sum(increase(tusviajes_package_searches_total{job="backend",result="empty"}[$__r
 / (sum(increase(tusviajes_package_searches_total{job="backend"}[$__range])) > 0)
 ```
 
-**Rankings de países y ciudades**
+**Ranking de países de destino**
 
 ```promql
 topk(5, sum by (destination) (
@@ -301,13 +298,7 @@ topk(5, sum by (destination) (
 ) > 0)
 ```
 
-```promql
-topk(5, sum by (destination) (
-  increase(tusviajes_package_destination_searches_total{job="backend",type="city",destination!="other"}[$__range])
-) > 0)
-```
-
-Una búsqueda con ambos filtros puede sumar en ambos rankings. Para obtener el total de búsquedas se usa el contador general. `increase` estima el aumento entre muestras y puede devolver fracciones. Esperar al menos dos recolecciones en el rango elegido. Los paneles indican ausencia de datos cuando faltan muestras. El total muestra cero cuando hay muestras y ningún incremento, y los rankings muestran sólo destinos con actividad.
+Para obtener el total de búsquedas se usa el contador general. `increase` estima el aumento entre muestras y puede devolver fracciones. Esperar al menos dos recolecciones en el rango elegido. Los paneles indican ausencia de datos cuando faltan muestras. El total muestra cero cuando hay muestras y ningún incremento, y el ranking muestra sólo países con actividad.
 
 #### Alertas de las APIs
 
