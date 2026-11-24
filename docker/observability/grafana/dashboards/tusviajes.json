@@ -793,6 +793,7 @@
       "options": {
         "orientation": "horizontal",
         "displayMode": "basic",
+        "textMode": "value_and_name",
         "showUnfilled": true,
         "reduceOptions": {
           "calcs": [
