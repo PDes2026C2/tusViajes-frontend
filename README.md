@@ -147,6 +147,12 @@ Ambas APIs usan la misma base: las migraciones de vuelos inicializan países, ci
 
 El volumen de este Compose es independiente de las bases de prueba o demos que ya existan en la máquina. Un volumen nuevo comienza sin agencias, compradores ni paquetes comprados: se pueden registrar desde la aplicación. La cuenta administradora inicial es `admin@tusviajes.com` / `admin123`.
 
+Para inicializar la agencia de ejemplo en una base sin agencias, definir una contraseña
+para ese entorno en `TUSVIAJES_BOOTSTRAP_AGENCY_PASSWORD` dentro de `.env` antes de
+levantar el backend. La carga automática de los paquetes de ejemplo requiere una agencia
+en la base. La variable se usa sólo al crear la cuenta, por lo que una instancia que
+ya tenía la contraseña anterior necesita cambiarla por separado.
+
 ```bash
 # Ver el estado y los logs
 docker compose ps
@@ -230,7 +236,7 @@ Las APIs exponen sus métricas en los puertos internos de gestión `backend:9091
 
 El dashboard **TusViajes - Métricas de las APIs** se carga automáticamente en la carpeta **TusViajes** de Grafana y se utiliza como página de inicio predeterminada. También se puede abrir directamente en http://localhost:3000/d/tusviajes-overview, adaptando el puerto si se cambió `GRAFANA_PORT`.
 
-El filtro **Servicio** permite elegir `backend`, `flights-api` o ambos. El período inicial muestra los últimos 15 minutos y los datos se actualizan cada 15 segundos.
+El filtro **Servicio** permite elegir `backend`, `flights-api` o ambos en los paneles técnicos. El período inicial muestra los últimos 15 minutos y los datos se actualizan cada 15 segundos.
 
 | Panel | Qué muestra |
 |---|---|
@@ -249,6 +255,50 @@ Las tasas y el p95 excluyen las rutas de Actuator y `/error`. Los controles de s
 La definición del dashboard está en `docker/observability/grafana/dashboards/tusviajes.json`; su carga automática se configura en `docker/observability/grafana/provisioning/dashboards/tusviajes.yaml`. Los cambios permanentes se realizan en esos archivos y se versionan en Git. Grafana vuelve a revisar el JSON cada 30 segundos y no permite guardar modificaciones de este tablero desde la interfaz.
 
 Para aplicar este cambio a un entorno que ya estaba levantado, ejecutar de nuevo el comando de arranque con el perfil `observability`. Compose recreará Grafana para incorporar la nueva configuración y el montaje del dashboard. Conservar las opciones `-f`, `-p` y `--env-file` si se usaron al crear el entorno.
+
+#### Métricas de negocio
+
+La sección **Métricas de negocio · Búsquedas de paquetes** usa el rango temporal del dashboard y consulta el backend. El filtro **Servicio** sólo afecta los paneles técnicos.
+
+Cuenta una vez cada primera página exitosa de `GET /api/travel-packages` (`page=0` o el valor por defecto), con `result="found"` o `result="empty"`. Las páginas posteriores y las búsquedas fallidas no incrementan el contador. Una carga inicial, recarga o reintento puede volver a contar si solicita una primera página exitosa.
+
+| Panel | Cálculo |
+|---|---|
+| Búsquedas de paquetes | Aumento estimado del contador en todo el rango elegido. |
+| Evolución de búsquedas | Tasa de búsquedas por minuto, separada por resultado. |
+| Búsquedas sin resultados | Búsquedas vacías divididas por el total. Sin búsquedas en el período, el porcentaje no está definido. |
+| Países de destino más buscados | Hasta cinco códigos ISO de país filtrados explícitamente, ordenados por búsquedas. |
+
+Las consultas PromQL del dashboard usan `$__range` en las consultas instantáneas y `$__rate_interval` en la serie temporal:
+
+**Total de búsquedas**
+
+```promql
+sum(increase(tusviajes_package_searches_total{job="backend"}[$__range]))
+```
+
+**Evolución en búsquedas por minuto**
+
+```promql
+sum by (result) (rate(tusviajes_package_searches_total{job="backend"}[$__rate_interval])) * 60
+```
+
+**Proporción de búsquedas sin resultados** (Grafana formatea la proporción como porcentaje)
+
+```promql
+sum(increase(tusviajes_package_searches_total{job="backend",result="empty"}[$__range]))
+/ (sum(increase(tusviajes_package_searches_total{job="backend"}[$__range])) > 0)
+```
+
+**Ranking de países de destino**
+
+```promql
+topk(5, sum by (destination) (
+  increase(tusviajes_package_destination_searches_total{job="backend",type="country"}[$__range])
+) > 0)
+```
+
+Para obtener el total de búsquedas se usa el contador general. `increase` estima el aumento entre muestras y puede devolver fracciones. Esperar al menos dos recolecciones en el rango elegido. Los paneles indican ausencia de datos cuando faltan muestras. El total muestra cero cuando hay muestras y ningún incremento, y el ranking muestra sólo países con actividad.
 
 #### Alertas de las APIs
 
