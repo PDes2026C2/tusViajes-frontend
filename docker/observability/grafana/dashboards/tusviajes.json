@@ -603,10 +603,10 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "min": 0,
           "noValue": "Sin datos",
-          "decimals": 1
+          "decimals": 0
         },
         "overrides": []
       },
@@ -783,10 +783,10 @@
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
+          "unit": "none",
           "min": 0,
           "noValue": "Sin datos",
-          "decimals": 1
+          "decimals": 0
         },
         "overrides": []
       },
